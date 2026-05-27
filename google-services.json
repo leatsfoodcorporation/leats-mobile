@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "352155423348",
+    "project_id": "leats-food-corporation-6cf78",
+    "storage_bucket": "leats-food-corporation-6cf78.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352155423348:android:223cc7a322a80ad4c8b721",
+        "android_client_info": {
+          "package_name": "com.mobile.leatscorp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "352155423348-di418sq1aance9hnq3k91b6qkcl3la3t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mobile.leatscorp",
+            "certificate_hash": "73a72923bdd1ff0da2f0c82f784f69ab6e7f4061"
+          }
+        },
+        {
+          "client_id": "352155423348-n325licl3jp7m1pucm43j2suistbisje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mobile.leatscorp",
+            "certificate_hash": "fb213cca6dae919be2e4b7962635895e03493006"
+          }
+        },
+        {
+          "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ5aVT3sjHzVd3ILbOv8Hx3te23dtwJNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

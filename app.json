@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "LEATS",
+    "slug": "leadsfoodcorporation",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/192x192.png",
+    "userInterfaceStyle": "light",
+    "scheme": "ecommerce",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mobile.leatscorp",
+      "icon": "./assets/192x192.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/192x192.png"
+      },
+      "package": "com.mobile.leatscorp",
+      "icon": "./assets/192x192.png",
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/192x192.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#D2062A",
+          "image": "./assets/splash.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-router",
+      "expo-font",
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/messaging",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "-keep class com.razorpay.** { *; }\n-keep class app.notifee.** { *; }",
+            "enableMinifyInReleaseBuilds": true
+          }
+        }
+      ],
+      [
+        "expo-updates",
+        {
+          "username": "leatsfoodcorporation"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c7691557-3882-4050-99fa-78ab0f19c22f"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c7691557-3882-4050-99fa-78ab0f19c22f"
+    }
+  }
+}
