@@ -2,7 +2,6 @@
   "expo": {
     "name": "LEATS",
     "slug": "leadsfoodcorporation",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/192x192.png",
     "userInterfaceStyle": "light",
@@ -13,7 +12,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mobile.leatscorp",
-      "icon": "./assets/192x192.png"
+      "icon": "./assets/192x192.png",
+      "buildNumber": "2",
+      "version": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,9 @@
       },
       "package": "com.mobile.leatscorp",
       "icon": "./assets/192x192.png",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+       "versionCode": 2,
+       "version": "1.0.1"
     },
     "web": {
       "favicon": "./assets/192x192.png",
