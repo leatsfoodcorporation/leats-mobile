@@ -1,0 +1,35 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>352155423348-di418sq1aance9hnq3k91b6qkcl3la3t.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBHLiXPtNSLPvMsZ8KnKjffx9JAI-t6yVM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>352155423348</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.mobile.leatscorp</string>
+	<key>PROJECT_ID</key>
+	<string>leats-food-corporation-6cf78</string>
+	<key>STORAGE_BUCKET</key>
+	<string>leats-food-corporation-6cf78.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:352155423348:ios:04d96248ffee2e2ec8b721</string>
+	<key>REVERSE_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1</string>
+</dict>
+</plist>
