@@ -29,6 +29,13 @@
             {
               "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mobile.leatscorp"
+              }
             }
           ]
         }
@@ -74,6 +81,13 @@
             {
               "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mobile.leatscorp"
+              }
             }
           ]
         }
@@ -135,6 +149,13 @@
             {
               "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mobile.leatscorp"
+              }
             }
           ]
         }
