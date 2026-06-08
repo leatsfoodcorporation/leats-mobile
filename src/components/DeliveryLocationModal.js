@@ -63,13 +63,25 @@ const DeliveryLocationModal = memo(() => {
     if (!pincode.trim()) return;
 
     const res = await checkPincode(pincode.trim(), selectedCountry);
+    const locationData = {
+      pincode: pincode.trim(),
+      city: res.data?.city || '',
+      state: res.data?.state || '',
+      country: res.data?.country || selectedCountry,
+      area: res.data?.area || '',
+      isServiceable: res.serviceable === true,
+    };
+
     setResult({
       serviceable: res.serviceable,
       message: res.message,
-      city: res.data?.city,
-      state: res.data?.state,
-      country: res.data?.country,
+      city: locationData.city,
+      state: locationData.state,
+      country: locationData.country,
+      area: locationData.area,
     });
+
+    saveLocation(locationData);
   };
 
   const handleDetectLocation = async () => {
