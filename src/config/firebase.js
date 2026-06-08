@@ -20,8 +20,8 @@ export const firebaseConfig = {
   apiKey: 'AIzaSyCZ5aVT3sjHzVd3ILbOv8Hx3te23dtwJNI',
   projectId: 'leats-food-corporation-6cf78',
   appId: Platform.select({
-    android: '1:352155423348:android:14ea434f5e10455dc8b721',
-    ios: '1:352155423348:ios:YOUR_IOS_APP_ID', // Add iOS app ID when available
+    android: '1:352155423348:android:223cc7a322a80ad4c8b721',
+    ios: '1:352155423348:ios:04d96248ffee2e2ec8b721', // Add iOS app ID when available
   }),
   messagingSenderId: '352155423348',
   projectNumber: '352155423348',

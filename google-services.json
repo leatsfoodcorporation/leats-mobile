@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+          "client_id": "352155423348-5s4uhrptllpb7r397cuphhrm6qk7hdtm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.leatsfoodcorporation.deliverypartner",
+            "certificate_hash": "51b9ae53c059020d583ca7af7abac8dbb659a1a1"
+          }
+        },
+        {
+          "client_id": "352155423348-p8i0fdqe8clet3ua6o5bl041iadeiio6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,15 +35,8 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+              "client_id": "352155423348-p8i0fdqe8clet3ua6o5bl041iadeiio6.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mobile.leatscorp"
-              }
             }
           ]
         }
@@ -43,82 +44,22 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:352155423348:android:14ea434f5e10455dc8b721",
-        "android_client_info": {
-          "package_name": "com.leatsfoodcorporation.mobile"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "352155423348-e8e3ek9f7l2q1qm25n40ao74acrhur20.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.leatsfoodcorporation.mobile",
-            "certificate_hash": "73a72923bdd1ff0da2f0c82f784f69ab6e7f4061"
-          }
-        },
-        {
-          "client_id": "352155423348-u9tnn8k69k996bv2ppmlj80v3l5aja4q.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.leatsfoodcorporation.mobile",
-            "certificate_hash": "fb213cca6dae919be2e4b7962635895e03493006"
-          }
-        },
-        {
-          "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCZ5aVT3sjHzVd3ILbOv8Hx3te23dtwJNI"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mobile.leatscorp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:352155423348:android:223cc7a322a80ad4c8b721",
+        "mobilesdk_app_id": "1:352155423348:android:67b90f063fc61d0bc8b721",
         "android_client_info": {
           "package_name": "com.mobile.leatscorp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "352155423348-15envfv9iau8jpu42bl0lr6jp9em9d8c.apps.googleusercontent.com",
+          "client_id": "352155423348-b2abv7lkfeo8bn0lco2lrd7agllo6bje.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.mobile.leatscorp",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+            "certificate_hash": "077ddc0d7d6fd706d7ad8954a34e640f7e59ecea"
           }
         },
         {
-          "client_id": "352155423348-di418sq1aance9hnq3k91b6qkcl3la3t.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mobile.leatscorp",
-            "certificate_hash": "73a72923bdd1ff0da2f0c82f784f69ab6e7f4061"
-          }
-        },
-        {
-          "client_id": "352155423348-diebv9k97hf56furoqmoshnvqsufcd4c.apps.googleusercontent.com",
+          "client_id": "352155423348-trns817mtk32q14hvbsmlephnoo76grh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.mobile.leatscorp",
@@ -126,36 +67,21 @@
           }
         },
         {
-          "client_id": "352155423348-n325licl3jp7m1pucm43j2suistbisje.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mobile.leatscorp",
-            "certificate_hash": "fb213cca6dae919be2e4b7962635895e03493006"
-          }
-        },
-        {
-          "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+          "client_id": "352155423348-p8i0fdqe8clet3ua6o5bl041iadeiio6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCZ5aVT3sjHzVd3ILbOv8Hx3te23dtwJNI"
+          "current_key": "AIzaSyDJsx3wJF8naDOjfpW9KzIJhQwa6L32Hko"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "352155423348-qim9e9s4r5ksda1r1eq4fmm3d8kbttn1.apps.googleusercontent.com",
+              "client_id": "352155423348-p8i0fdqe8clet3ua6o5bl041iadeiio6.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "352155423348-h07g0f6g5cahct41qt0kju6h04qil6ev.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.mobile.leatscorp"
-              }
             }
           ]
         }
