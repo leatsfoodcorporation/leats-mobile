@@ -15,9 +15,11 @@ import { getPromotionalCoupons } from '../services/couponService';
 import { getWebSettings } from '../services/webSettingsService';
 import { getCategories } from '../services/frontendService';
 import { useLocation } from '../context/LocationContext';
+import { detectLocationByCoords } from '../services/deliveryZoneService';
 import { useWishlist } from '../context/WishlistContext';
 import { getFullImageUrl } from '../lib/image-utils';
 import OrderCountdownBanner from './OrderCountdownBanner';
+import * as Location from 'expo-location';
 
 const PRIMARY_COLOR = '#e63946';
 
@@ -64,11 +66,61 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
     easing: (t) => t * t * (3 - 2 * t), // Smoothstep easing
   }) : new Animated.Value(1);
 
-  // Location context
-  const { location, setIsModalOpen } = useLocation();
+  const { location, setIsModalOpen, saveLocation, checkPincode } = useLocation();
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
-  // Fetch promotional offers and web settings on mount
+  const detectAndSaveLocation = async () => {
+    if (location || detectingLocation) return;
+
+    setDetectingLocation(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        return;
+      }
+
+      const currentPosition = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+        maximumAge: 0,
+        timeout: 15000,
+      });
+
+      const { latitude, longitude } = currentPosition.coords;
+      const response = await detectLocationByCoords(latitude, longitude);
+      console.log('Location detection response:', response);
+
+      if (response.success && response.data?.pincode) {
+        const pincode = response.data.pincode;
+        const city = response.data.city || '';
+        const state = response.data.state || '';
+        const country = response.data.country || 'India';
+        let isServiceable = response.serviceable;
+
+        if (isServiceable === false) {
+          const checkResult = await checkPincode(pincode, country, city, state);
+          isServiceable = checkResult.serviceable;
+        }
+
+        console.log('Detected location details:', { pincode, city, state, country, isServiceable });
+
+        saveLocation({
+          pincode,
+          city,
+          state,
+          country,
+          isServiceable: isServiceable === true,
+        });
+      }
+    } catch (error) {
+      console.error('Location detection failed:', error);
+    } finally {
+      setDetectingLocation(false);
+    }
+  };
+
+  // Fetch promotional offers and web settings on mount and auto-detect postal code once
   useEffect(() => {
+    detectAndSaveLocation();
     fetchPromotionalOffers();
     fetchWebSettings();
     fetchCategories();
@@ -274,7 +326,11 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
                   Available in
                 </Text>
                 <Text className="text-xs font-bold text-gray-900" numberOfLines={1}>
-                  {location ? `${location.city}, ${location.pincode}` : 'Select Location'}
+                  {location ? (
+                    location.pincode ? (
+                      location.city ? `${location.city}, ${location.pincode}` : location.pincode
+                    ) : 'Select Location'
+                  ) : detectingLocation ? 'Detecting postal code...' : 'Select Location'}
                 </Text>
               </View>
               <Ionicons name="chevron-down" size={16} color="#9CA3AF" />

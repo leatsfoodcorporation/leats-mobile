@@ -4,6 +4,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTabRefresh } from '../../context/TabRefreshContext';
 import Header from '../../components/Header';
 import { BannerCarousel, CategoryScroll, ProductSection } from '../../components/home';
+import { useLocation } from '../../context/LocationContext';
 import { 
   getBanners, 
   getCategories, 
@@ -38,6 +40,7 @@ const HomeScreen = () => {
   const [badges, setBadges] = useState([]);
   const [badgeProducts, setBadgeProducts] = useState({});
   const [comboProducts, setComboProducts] = useState([]);
+  const { location, setIsModalOpen } = useLocation();
 
   // Fetch all homepage data
   const fetchHomeData = useCallback(async (forceRefresh = false) => {
@@ -175,6 +178,31 @@ const HomeScreen = () => {
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#e63946" />
           <Text className="mt-3 text-gray-500">Loading...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (location?.isServiceable === false) {
+    const placeParts = [location.area, location.city, location.state].filter(Boolean);
+    const placeText = placeParts.join(', ');
+
+    return (
+      <View className="flex-1 bg-gray-50">
+        <Header 
+          navigation={{ navigate: (route) => router.push(`/(tabs)/${route.toLowerCase()}`) }}
+          showSearch={true}
+          cartCount={0}
+          wishlistCount={0}
+          scrollY={scrollY}
+        />
+        <View className="flex-1 px-6 py-8 justify-center">
+          <View className="rounded-3xl bg-white p-6 shadow-sm border border-red-100">
+            <Text className="text-2xl font-bold text-red-700">Not Serviceable</Text>
+            <Text className="mt-4 text-sm text-gray-600 leading-6">
+              {`We do not deliver to ${placeText} yet`}
+            </Text>
+          </View>
         </View>
       </View>
     );
