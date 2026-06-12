@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import PhoneInput from './PhoneInput';
 import CountryStateCitySelect from './CountryStateCitySelect';
 import ZipCodeInput from './ZipCodeInput';
+import MapView from 'react-native-maps';
+import * as Location from 'expo-location';
 
 const AddressModal = ({
   visible = false,
@@ -38,38 +40,61 @@ const AddressModal = ({
   const [isValidating, setIsValidating] = useState(false);
   const [serviceabilityMessage, setServiceabilityMessage] = useState('');
 
+  const [region, setRegion] = useState(null);
+  const [address, setAddress] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [startCoordinate, setStartCoordinate] = useState(null);
+  const [endCoordinate, setEndCoordinate] = useState(null);
+  const [moving, setMoving] = useState(false);
+  const mapRef = useRef(null);
+
   // Initialize form with editing address
   useEffect(() => {
-    if (editingAddress) {
-      setFormData({
-        label: editingAddress.addressType ? editingAddress.addressType.charAt(0).toUpperCase() + editingAddress.addressType.slice(1) : 'Home',
-        fullName: editingAddress.name || '',
-        phoneNumber: editingAddress.phone || '',
-        addressLine1: editingAddress.addressLine1 || '',
-        addressLine2: editingAddress.addressLine2 || '',
-        city: editingAddress.city || '',
-        district: editingAddress.district || '',
-        state: editingAddress.state || '',
-        zipCode: editingAddress.pincode || '',
-        country: editingAddress.country || 'India',
-      });
-    } else {
-      // Reset form for new address
-      setFormData({
-        label: 'Home',
-        fullName: '',
-        phoneNumber: '',
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        district: '',
-        state: '',
-        zipCode: '',
-        country: 'India',
-      });
+    const initializeForm = async () => {
+      setLoading(true);
+      setRegion(null);
+
+      if (editingAddress) {
+        setFormData({
+          label: editingAddress.addressType
+            ? editingAddress.addressType.charAt(0).toUpperCase() +
+              editingAddress.addressType.slice(1)
+            : 'Home',
+          fullName: editingAddress.name || '',
+          phoneNumber: editingAddress.phone || '',
+          addressLine1: editingAddress.addressLine1 || '',
+          addressLine2: editingAddress.addressLine2 || '',
+          city: editingAddress.city || '',
+          district: editingAddress.district || '',
+          state: editingAddress.state || '',
+          zipCode: editingAddress.pincode || '',
+          country: editingAddress.country || 'India',
+        });
+
+        await loadEditLocation(editingAddress);
+      } else {
+        setFormData({
+          label: 'Home',
+          fullName: '',
+          phoneNumber: '',
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          district: '',
+          state: '',
+          zipCode: '',
+          country: 'India',
+        });
+        await getCurrentLocation();
+      }
+
+      setIsServiceable(null);
+      setServiceabilityMessage('');
+    };
+
+    if (visible) {
+      initializeForm();
     }
-    setIsServiceable(null);
-    setServiceabilityMessage('');
   }, [editingAddress, visible]);
 
   const handleSubmit = () => {
@@ -113,6 +138,144 @@ const AddressModal = ({
     onClose();
   };
 
+  const loadEditLocation = async (addressToEdit) => {
+    try {
+      const query = [
+        addressToEdit.addressLine1,
+        addressToEdit.addressLine2,
+        addressToEdit.city,
+        addressToEdit.state,
+        addressToEdit.country,
+        addressToEdit.pincode,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      if (!query) {
+        await getCurrentLocation();
+        return;
+      }
+
+      const geocoded = await Location.geocodeAsync(query);
+
+      if (geocoded.length > 0) {
+        const location = geocoded[0];
+        const editRegion = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        };
+
+        setRegion(editRegion);
+        setStartCoordinate({
+          latitude: editRegion.latitude,
+          longitude: editRegion.longitude,
+        });
+        setEndCoordinate({
+          latitude: editRegion.latitude,
+          longitude: editRegion.longitude,
+        });
+
+        await getAddress(editRegion.latitude, editRegion.longitude);
+      } else {
+        await getCurrentLocation();
+      }
+    } catch (error) {
+      console.log('Edit location error:', error);
+      await getCurrentLocation();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrentLocation = async () => {
+    try {
+      const { status } =
+        await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') return;
+
+      const location =
+        await Location.getCurrentPositionAsync({});
+
+      const currentRegion = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      };
+
+      setRegion(currentRegion);
+
+      setStartCoordinate({
+        latitude: currentRegion.latitude,
+        longitude: currentRegion.longitude,
+      });
+
+      setEndCoordinate({
+        latitude: currentRegion.latitude,
+        longitude: currentRegion.longitude,
+      });
+
+      await getAddress(
+        currentRegion.latitude,
+        currentRegion.longitude
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+const getAddress = async (lat, lng) => {
+  try {
+    const result = await Location.reverseGeocodeAsync({
+      latitude: lat,
+      longitude: lng,
+    });
+
+    if (result.length > 0) {
+      const place = result[0];
+      console.log(place);
+      setAddress(
+        `${place.street || ''}, ${place.city || ''}, ${place.region || ''}`
+      );
+
+      setFormData(prev => ({
+        ...prev,
+        addressLine1: `${place.name || ''} ${place.street || ''}`.trim(),
+        addressLine2: `${place.district || place.subregion || ''}`.trim(),
+        city: place.city || '',
+        district: place.district || place.subregion || '',
+        state: place.region || '',
+        zipCode: place.postalCode || '',
+        country: place.country || 'India',
+      }));
+    }
+  } catch (error) {
+    console.log('Reverse geocode error:', error);
+  }
+};
+
+  const handleRegionChangeComplete = async (newRegion) => {
+    setRegion(newRegion);
+
+    await getAddress(
+      newRegion.latitude,
+      newRegion.longitude
+    );
+  };
+
+  if (loading || !region) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <Modal
       visible={visible}
@@ -133,6 +296,26 @@ const AddressModal = ({
           </View>
 
           <ScrollView className="flex-1 px-4 py-4">
+            {/* MapView */}
+            <View style={{ width: '100%', height: 300, }}>
+              <MapView style={{ width: '100%', height: 300, }}
+                ref={mapRef}
+                region={region}
+                onRegionChange={() => setMoving(true)}
+                onRegionChangeComplete={(newRegion) => {
+                  setMoving(false);
+                  setRegion(newRegion);
+                  getAddress(newRegion.latitude, newRegion.longitude);
+                }}
+              />
+              <View pointerEvents="none" style={{  position: 'absolute', top: '50%', left: '50%', transform: [  { translateX: -20 }, { translateY: moving ? -55 : -40 }, ], }} >
+                <Ionicons
+                  name="location"
+                  size={40}
+                  color="red"
+              /></View>
+            </View>
+      
             {/* Pincode - TOP FOR UX */}
             <View className="mb-4">
               <View className="flex-row items-center justify-between mb-2">
@@ -166,64 +349,7 @@ const AddressModal = ({
                 placeholder="6-digit pincode"
               />
             </View>
-
-            {/* Separator */}
-            <View className="h-px bg-gray-200 my-4" />
-
-            {/* Address Label */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Address Label <Text className="text-red-500">*</Text>
-              </Text>
-              <View className="flex-row gap-2">
-                {['Home', 'Office', 'Other'].map((label) => (
-                  <TouchableOpacity
-                    key={label}
-                    onPress={() => setFormData({ ...formData, label })}
-                    className={`flex-1 py-3 rounded-lg border ${
-                      formData.label === label
-                        ? 'bg-red-50 border-red-500'
-                        : 'bg-white border-gray-300'
-                    }`}
-                  >
-                    <Text
-                      className={`text-center font-medium ${
-                        formData.label === label ? 'text-red-600' : 'text-gray-700'
-                      }`}
-                    >
-                      {label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Full Name */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Full Name <Text className="text-red-500">*</Text>
-              </Text>
-              <TextInput
-                value={formData.fullName}
-                onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                placeholder="Enter full name"
-                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            {/* Phone Number */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Phone Number <Text className="text-red-500">*</Text>
-              </Text>
-              <PhoneInput
-                value={formData.phoneNumber}
-                onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
-                disabled={!visible}
-              />
-            </View>
-
+            
             {/* Address Line 1 */}
             <View className="mb-4">
               <Text className="text-sm font-medium text-gray-700 mb-2">
@@ -285,6 +411,64 @@ const AddressModal = ({
               stateLabel="State"
               cityLabel="City"
             />
+
+            {/* Separator */}
+            <View className="h-px bg-gray-200 my-4" />
+
+            {/* Address Label */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Address Label <Text className="text-red-500">*</Text>
+              </Text>
+              <View className="flex-row gap-2">
+                {['Home', 'Office', 'Other'].map((label) => (
+                  <TouchableOpacity
+                    key={label}
+                    onPress={() => setFormData({ ...formData, label })}
+                    className={`flex-1 py-3 rounded-lg border ${
+                      formData.label === label
+                        ? 'bg-red-50 border-red-500'
+                        : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-medium ${
+                        formData.label === label ? 'text-red-600' : 'text-gray-700'
+                      }`}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Full Name */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Full Name <Text className="text-red-500">*</Text>
+              </Text>
+              <TextInput
+                value={formData.fullName}
+                onChangeText={(text) => setFormData({ ...formData, fullName: text })}
+                placeholder="Enter full name"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* Phone Number */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Phone Number <Text className="text-red-500">*</Text>
+              </Text>
+              <PhoneInput
+                value={formData.phoneNumber}
+                onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
+                disabled={!visible}
+              />
+            </View>
+
           </ScrollView>
 
           {/* Action Buttons */}
