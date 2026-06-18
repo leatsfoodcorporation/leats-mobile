@@ -121,7 +121,7 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
   // Fetch promotional offers and web settings on mount and auto-detect postal code once
   useEffect(() => {
     detectAndSaveLocation();
-    fetchPromotionalOffers();
+    // fetchPromotionalOffers();
     fetchWebSettings();
     fetchCategories();
   }, []);
