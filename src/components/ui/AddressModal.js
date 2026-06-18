@@ -8,6 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  findNodeHandle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PhoneInput from './PhoneInput';
@@ -45,8 +48,6 @@ const AddressModal = ({
   const [loading, setLoading] = useState(true);
   const [startCoordinate, setStartCoordinate] = useState(null);
   const [endCoordinate, setEndCoordinate] = useState(null);
-  const [moving, setMoving] = useState(false);
-  const mapRef = useRef(null);
 
   // Initialize form with editing address
   useEffect(() => {
@@ -163,8 +164,8 @@ const AddressModal = ({
         const editRegion = {
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
+          latitudeDelta: 0.002,
+          longitudeDelta: 0.002,
         };
 
         setRegion(editRegion);
@@ -202,8 +203,8 @@ const AddressModal = ({
       const currentRegion = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        latitudeDelta: 0.002,
+        longitudeDelta: 0.002,
       };
 
       setRegion(currentRegion);
@@ -295,40 +296,117 @@ const getAddress = async (lat, lng) => {
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 px-4 py-4">
-            {/* MapView */}
-            <View style={{ width: '100%', height: 300, }}>
-              <MapView style={{ width: '100%', height: 300, }}
-                ref={mapRef}
-                region={region}
-                onRegionChange={() => setMoving(true)}
-                onRegionChangeComplete={(newRegion) => {
-                  setMoving(false);
-                  setRegion(newRegion);
-                  getAddress(newRegion.latitude, newRegion.longitude);
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 70}
+            className="flex-1"
+          >
+            <ScrollView
+              className="flex-1 px-4 py-4"
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              contentContainerStyle={{ paddingBottom: 250 }}
+            >
+              {/* MapView */}
+              <View style={{ width: '100%', height: 300 }}>
+                <MapView
+                  style={{ width: '100%', height: 300 }}
+                  region={region}
+                  onRegionChangeComplete={(newRegion) => {
+                    setRegion(newRegion);
+                    getAddress(newRegion.latitude, newRegion.longitude);
+                  }}
+                />
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: [
+                    { translateX: -20 },
+                    { translateY: -40 },
+                  ],
                 }}
-              />
-              <View pointerEvents="none" style={{  position: 'absolute', top: '50%', left: '50%', transform: [  { translateX: -20 }, { translateY: moving ? -55 : -40 }, ], }} >
-                <Ionicons
-                  name="location"
-                  size={40}
-                  color="red"
-              /></View>
-            </View>
-      
-            {/* Pincode - TOP FOR UX */}
-            <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-sm font-medium text-gray-700">
-                  Pincode <Text className="text-red-500">*</Text>
-                </Text>
-                {isValidating && (
-                  <View className="flex-row items-center">
-                    <ActivityIndicator size="small" color="#666" />
-                    <Text className="text-xs text-gray-500 ml-1">Checking...</Text>
-                  </View>
-                )}
+              >
+                <Ionicons name="location" size={40} color="red" />
               </View>
+            </View>
+            {/* Address Line 1 */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Address Line 1 <Text className="text-red-500">*</Text>
+              </Text>
+              <TextInput
+                value={formData.addressLine1}
+                onChangeText={(text) => setFormData({ ...formData, addressLine1: text })}
+                placeholder="House/Flat No, Building Name, Street"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* Address Line 2 */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Address Line 2
+              </Text>
+              <TextInput
+                value={formData.addressLine2}
+                onChangeText={(text) => setFormData({ ...formData, addressLine2: text })}
+                placeholder="Landmark, Area"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* City */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                City <Text className="text-red-500">*</Text>
+              </Text>
+              <TextInput
+                value={formData.city}
+                onChangeText={(text) => setFormData({ ...formData, city: text })}
+                placeholder="Enter city"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* District */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                District
+              </Text>
+              <TextInput
+                value={formData.district}
+                onChangeText={(text) => setFormData({ ...formData, district: text })}
+                placeholder="Enter district"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* State */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                State <Text className="text-red-500">*</Text>
+              </Text>
+              <TextInput
+                value={formData.state}
+                onChangeText={(text) => setFormData({ ...formData, state: text })}
+                placeholder="Enter state"
+                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            {/* Pincode */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
+                Pincode <Text className="text-red-500">*</Text>
+              </Text>
               <ZipCodeInput
                 country={formData.country}
                 state={formData.state}
@@ -349,71 +427,20 @@ const getAddress = async (lat, lng) => {
                 placeholder="6-digit pincode"
               />
             </View>
-            
-            {/* Address Line 1 */}
+
+            {/* Country */}
             <View className="mb-4">
               <Text className="text-sm font-medium text-gray-700 mb-2">
-                Address Line 1 <Text className="text-red-500">*</Text>
+                Country <Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                value={formData.addressLine1}
-                onChangeText={(text) => setFormData({ ...formData, addressLine1: text })}
-                placeholder="House/Flat No, Building Name, Street"
+                value={formData.country}
+                onChangeText={(text) => setFormData({ ...formData, country: text })}
+                placeholder="Enter country"
                 className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
                 placeholderTextColor="#999"
               />
             </View>
-
-            {/* Address Line 2 */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Address Line 2 (Optional)
-              </Text>
-              <TextInput
-                value={formData.addressLine2}
-                onChangeText={(text) => setFormData({ ...formData, addressLine2: text })}
-                placeholder="Landmark, Area"
-                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            {/* District */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">District</Text>
-              <TextInput
-                value={formData.district}
-                onChangeText={(text) => setFormData({ ...formData, district: text })}
-                placeholder="Enter district"
-                className="border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            {/* Country, State, City */}
-            <CountryStateCitySelect
-              value={{
-                country: formData.country,
-                state: formData.state,
-                city: formData.city,
-              }}
-              onChange={(value) => {
-                setFormData({
-                  ...formData,
-                  country: value.country,
-                  state: value.state,
-                  city: value.city,
-                });
-              }}
-              required
-              showLabels
-              countryLabel="Country"
-              stateLabel="State"
-              cityLabel="City"
-            />
-
-            {/* Separator */}
-            <View className="h-px bg-gray-200 my-4" />
 
             {/* Address Label */}
             <View className="mb-4">
@@ -445,10 +472,13 @@ const getAddress = async (lat, lng) => {
 
             {/* Full Name */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Full Name <Text className="text-red-500">*</Text>
-              </Text>
+              <TouchableOpacity activeOpacity={0.8}>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Full Name <Text className="text-red-500">*</Text>
+                </Text>
+              </TouchableOpacity>
               <TextInput
+                ref={fullNameRef}
                 value={formData.fullName}
                 onChangeText={(text) => setFormData({ ...formData, fullName: text })}
                 placeholder="Enter full name"
@@ -459,17 +489,21 @@ const getAddress = async (lat, lng) => {
 
             {/* Phone Number */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Phone Number <Text className="text-red-500">*</Text>
-              </Text>
+              <TouchableOpacity activeOpacity={0.8}>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Phone Number <Text className="text-red-500">*</Text>
+                </Text>
+              </TouchableOpacity>
               <PhoneInput
+                ref={phoneRef}
                 value={formData.phoneNumber}
                 onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
                 disabled={!visible}
               />
             </View>
 
-          </ScrollView>
+            </ScrollView>
+          </KeyboardAvoidingView>
 
           {/* Action Buttons */}
           <View className="flex-row gap-2 px-4 py-4 border-t border-gray-200">
