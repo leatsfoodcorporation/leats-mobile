@@ -21,7 +21,7 @@ import { getAllBadges } from '../../services/badgeService';
 import { useTabRefresh } from '../../context/TabRefreshContext';
 
 const SORT_OPTIONS = [
-  { label: 'Newest First', value: 'newest', sortBy: 'createdAt', sortOrder: 'desc' },
+  // { label: 'Newest First', value: 'newest', sortBy: 'createdAt', sortOrder: 'desc' },
   { label: 'Price: Low to High', value: 'price-low', sortBy: 'defaultSellingPrice', sortOrder: 'asc' },
   { label: 'Price: High to Low', value: 'price-high', sortBy: 'defaultSellingPrice', sortOrder: 'desc' },
   { label: 'Discount', value: 'discount', sortBy: 'defaultDiscountValue', sortOrder: 'desc' },

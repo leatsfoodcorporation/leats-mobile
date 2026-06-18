@@ -478,7 +478,6 @@ const getAddress = async (lat, lng) => {
                 </Text>
               </TouchableOpacity>
               <TextInput
-                ref={fullNameRef}
                 value={formData.fullName}
                 onChangeText={(text) => setFormData({ ...formData, fullName: text })}
                 placeholder="Enter full name"
@@ -495,7 +494,6 @@ const getAddress = async (lat, lng) => {
                 </Text>
               </TouchableOpacity>
               <PhoneInput
-                ref={phoneRef}
                 value={formData.phoneNumber}
                 onChange={(value) => setFormData({ ...formData, phoneNumber: value })}
                 disabled={!visible}
