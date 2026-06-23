@@ -325,57 +325,14 @@ const DeliveryLocationModal = memo(() => {
               </Text>
             </TouchableOpacity> */}
 
-            {/* Country Selector */}
+            {/* Service Area Message */}
             <View className="items-center mb-6">
-              <TouchableOpacity
-                onPress={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                className="flex-row items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200"
-              >
-                <Text className="text-lg">{getCountryFlag(selectedCountry)}</Text>
-                <Text className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  {selectedCountry}
+              <View className="bg-red-50 border border-red-100 px-4 py-2 rounded-full flex-row items-center gap-2 shadow-sm">
+                <Ionicons name="location" size={16} color={PRIMARY_COLOR} />
+                <Text className="text-sm font-semibold text-gray-800">
+                  We are currently serving in <Text style={{ color: PRIMARY_COLOR }}>Madurai!</Text>
                 </Text>
-                <Ionicons 
-                  name={isCountryDropdownOpen ? "chevron-up" : "chevron-down"} 
-                  size={16} 
-                  color="#9CA3AF" 
-                />
-              </TouchableOpacity>
-
-              {/* Country Dropdown */}
-              {isCountryDropdownOpen && (
-                <View className="mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5">
-                  {availableCountries.length > 0 ? (
-                    availableCountries.map((country) => (
-                      <TouchableOpacity
-                        key={country}
-                        onPress={() => {
-                          setSelectedCountry(country);
-                          setIsCountryDropdownOpen(false);
-                          setResult(null);
-                        }}
-                        className={`flex-row items-center gap-3 px-4 py-2.5 ${
-                          selectedCountry === country ? 'bg-red-50' : ''
-                        }`}
-                      >
-                        <Text className="text-lg">{getCountryFlag(country)}</Text>
-                        <Text 
-                          className={`text-sm uppercase ${
-                            selectedCountry === country ? 'font-bold' : 'font-medium'
-                          }`}
-                          style={{ color: selectedCountry === country ? PRIMARY_COLOR : '#4B5563' }}
-                        >
-                          {country}
-                        </Text>
-                      </TouchableOpacity>
-                    ))
-                  ) : (
-                    <Text className="px-4 py-2 text-xs text-gray-400 italic">
-                      No zones configured
-                    </Text>
-                  )}
-                </View>
-              )}
+              </View>
             </View>
 
             {/* Result */}

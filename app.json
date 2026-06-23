@@ -13,8 +13,17 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.mobile.leatscorp",
       "icon": "./assets/192x192.png",
-      "buildNumber": "5",
-      "version": "1.0.1"
+      "buildNumber": "6",
+      "version": "1.0.1",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow LEATS to access your photo library to upload profile pictures and document images.",
+        "NSPhotoLibraryAddUsageDescription": "Allow LEATS to save photos to your device library.",
+        "NSCameraUsageDescription": "Allow LEATS to use your camera to take photos for your profile and delivery support.",
+        "NSLocationWhenInUseUsageDescription": "LEATS needs your location to show nearby restaurants, calculate delivery fees, and set an accurate drop-off address for your food.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "LEATS needs your location to show nearby restaurants, calculate delivery fees, and set an accurate drop-off address for your food.",
+        "NSLocationAlwaysUsageDescription": "LEATS needs your location to show nearby restaurants, calculate delivery fees, and set an accurate drop-off address for your food."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,8 +32,8 @@
       "package": "com.mobile.leatscorp",
       "icon": "./assets/192x192.png",
       "googleServicesFile": "./google-services.json",
-       "versionCode": 5,
-       "version": "1.0.1"
+      "versionCode": 5,
+      "version": "1.0.1"
     },
     "web": {
       "favicon": "./assets/192x192.png",
@@ -48,6 +57,14 @@
       [
         "expo-build-properties",
         {
+          "ios": {
+            "useFrameworks": "static",
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAuth",
+              "RNFBMessaging"
+            ]
+          },
           "android": {
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
@@ -60,6 +77,14 @@
         "expo-updates",
         {
           "username": "leatsfoodcorporation"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food.",
+          "locationAlwaysAndWhenInUsePermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food.",
+          "locationAlwaysPermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food."
         }
       ]
     ],
