@@ -212,8 +212,8 @@ const ResetPasswordOTPScreen = () => {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor="#e63946" translucent={true} />
-      <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: '#e63946' }}>
+      <StatusBar style="dark" backgroundColor="#f9fafb" translucent={true} />
+      <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: '#f9fafb' }}>
         <View 
           className="flex-1 bg-gray-50"
           style={{ 

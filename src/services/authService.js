@@ -245,6 +245,16 @@ const authService = {
     const response = await axiosInstance.delete(`/api/auth/addresses/${id}`);
     return response.data;
   },
+
+  /**
+   * Delete user account (App Store / Play Store compliance)
+   * @param {string} email - User's email to delete
+   * @returns {Promise} Delete response
+   */
+  deleteAccount: async (email) => {
+    const response = await axiosInstance.post('/api/auth/delete-account', { email });
+    return response.data;
+  },
 };
 
 export default authService;

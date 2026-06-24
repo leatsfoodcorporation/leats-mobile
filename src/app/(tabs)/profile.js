@@ -80,6 +80,8 @@ const ProfileScreen = memo(() => {
   const insets = useSafeAreaInsets();
   const [webSettings, setWebSettings] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const fetchWebSettings = useCallback(async (forceRefresh = false) => {
@@ -140,6 +142,37 @@ const ProfileScreen = memo(() => {
 
   const handleLogoutCancel = () => {
     setShowLogoutConfirm(false);
+  };
+
+  const handleDeleteAccountPress = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteAccountCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  const handleDeleteAccountConfirm = async () => {
+    if (!user?.email) return;
+    try {
+      setIsDeleting(true);
+      const { default: authService } = await import('../../services/authService');
+      const response = await authService.deleteAccount(user.email);
+      
+      if (response.success) {
+        setShowDeleteConfirm(false);
+        await logout();
+        toast.success('Account Deleted', 'Your account has been permanently deleted.');
+        router.replace('/(auth)/login');
+      } else {
+        toast.error('Error', response.error || 'Failed to delete account. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Error', 'Failed to delete account. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleNotificationToggle = async (value) => {
@@ -362,8 +395,8 @@ const ProfileScreen = memo(() => {
           />
         </View>
 
-        {/* Logout Button */}
-        <View className="px-4 py-6">
+        {/* Logout & Delete Account Buttons */}
+        <View className="px-4 py-6 gap-4">
           <TouchableOpacity
             onPress={handleLogoutPress}
             className="flex-row items-center justify-center py-4 rounded-lg"
@@ -372,6 +405,16 @@ const ProfileScreen = memo(() => {
             <Ionicons name="log-out-outline" size={22} color="white" />
             <Text className="text-white text-base font-bold ml-2">
               Logout
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleDeleteAccountPress}
+            className="flex-row items-center justify-center py-4 rounded-lg border border-gray-300 bg-white"
+          >
+            <Ionicons name="trash-outline" size={22} color="#EF4444" />
+            <Text className="text-red-500 text-base font-bold ml-2">
+              Delete Account
             </Text>
           </TouchableOpacity>
         </View>
@@ -432,6 +475,66 @@ const ProfileScreen = memo(() => {
                 <Text className="text-white text-base font-semibold text-center">
                   Logout
                 </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        visible={showDeleteConfirm}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={handleDeleteAccountCancel}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 px-6">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            {/* Icon */}
+            <View className="items-center mb-4">
+              <View
+                className="w-16 h-16 rounded-full items-center justify-center"
+                style={{ backgroundColor: '#FEE2E2' }}
+              >
+                <Ionicons name="trash-outline" size={32} color="#EF4444" />
+              </View>
+            </View>
+
+            {/* Title */}
+            <Text className="text-xl font-bold text-gray-900 text-center mb-2">
+              Delete Account
+            </Text>
+
+            {/* Message */}
+            <Text className="text-base text-gray-600 text-center mb-6">
+              Are you sure you want to permanently delete your account? This action is permanent and cannot be undone. All your personal data, orders, and addresses will be deleted.
+            </Text>
+
+            {/* Buttons */}
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={handleDeleteAccountCancel}
+                disabled={isDeleting}
+                className="flex-1 bg-gray-100 py-3 rounded-lg"
+              >
+                <Text className="text-gray-700 text-base font-semibold text-center">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleDeleteAccountConfirm}
+                disabled={isDeleting}
+                className="flex-1 py-3 rounded-lg justify-center items-center"
+                style={{ backgroundColor: '#EF4444' }}
+              >
+                {isDeleting ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Text className="text-white text-base font-semibold text-center">
+                    Delete
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>

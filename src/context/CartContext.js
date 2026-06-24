@@ -5,6 +5,7 @@ import cartService from '../services/cartService';
 import { getActiveDeliveryCharges } from '../services/deliveryChargeService';
 import { calculateDeliveryFee } from '../lib/delivery-charge-utils';
 import toast from '../utils/toast';
+import { router } from 'expo-router';
 
 const CartContext = createContext();
 
@@ -95,6 +96,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product, variantIndex = 0, cuttingStyle = null, quantity = 1) => {
     if (!isAuthenticated || !user?.id) {
       toast.info('Login Required', 'Please login to add items to cart');
+      router.push('/(auth)/login');
       return false;
     }
 
@@ -114,7 +116,8 @@ export const CartProvider = ({ children }) => {
 
       if (response.success) {
         await fetchCart();
-        toast.success('Added to Cart', `${product.shortDescription} added to your cart`);
+        const productName = product?.shortDescription || product?.brand || 'Item';
+        toast.success('Added to Cart', `${productName} added to your cart`);
         return true;
       } else {
         toast.error('Error', response.error || 'Failed to add to cart');
