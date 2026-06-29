@@ -2,18 +2,32 @@ import axiosInstance from '../lib/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Get userId from AsyncStorage
+ * Resolve the current authenticated user id from persisted storage or the profile endpoint.
  */
-const getUserId = async () => {
+const getAuthenticatedUserId = async () => {
   try {
     const userData = await AsyncStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
-      return user.id;
+      const resolvedUserId = user?.id || user?._id || user?.userId || user?.customerId;
+      if (resolvedUserId) {
+        return resolvedUserId;
+      }
     }
-    return null;
   } catch (error) {
-    console.error('Error getting userId:', error);
+    console.error('Error getting userId from storage:', error);
+  }
+
+  try {
+    const response = await axiosInstance.get('/api/auth/me');
+    const payload = response?.data?.data || response?.data?.user || response?.data;
+    return payload?.id || payload?._id || payload?.userId || payload?.customerId || null;
+  } catch (error) {
+    if (error?.response?.status === 401 || error?.response?.status === 403) {
+      console.log('⚠️ No authenticated user found for address request');
+    } else {
+      console.error('Error resolving authenticated user for address request:', error);
+    }
     return null;
   }
 };
@@ -28,18 +42,29 @@ const addressService = {
    */
   getAddresses: async () => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
-        throw new Error('User not authenticated');
+        console.log('⚠️ Skipping address fetch because no authenticated user is available');
+        return [];
       }
-      
+
       const response = await axiosInstance.get('/api/online/addresses', {
         params: { userId }
       });
-      return response.data;
+
+      const responseData = response?.data;
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+
+      if (Array.isArray(responseData?.data)) {
+        return responseData.data;
+      }
+
+      return [];
     } catch (error) {
       console.error('Error fetching addresses:', error);
-      throw error;
+      return [];
     }
   },
 
@@ -48,11 +73,11 @@ const addressService = {
    */
   getAddressById: async (addressId) => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
         throw new Error('User not authenticated');
       }
-      
+
       const response = await axiosInstance.get(`/api/online/addresses/${addressId}`, {
         params: { userId }
       });
@@ -68,7 +93,7 @@ const addressService = {
    */
   createAddress: async (addressData) => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
         throw new Error('User not authenticated');
       }
@@ -103,7 +128,7 @@ const addressService = {
    */
   updateAddress: async (addressId, addressData) => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
         throw new Error('User not authenticated');
       }
@@ -138,7 +163,7 @@ const addressService = {
    */
   deleteAddress: async (addressId) => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
         throw new Error('User not authenticated');
       }
@@ -158,7 +183,7 @@ const addressService = {
    */
   setDefaultAddress: async (addressId) => {
     try {
-      const userId = await getUserId();
+      const userId = await getAuthenticatedUserId();
       if (!userId) {
         throw new Error('User not authenticated');
       }
