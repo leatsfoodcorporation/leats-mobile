@@ -19,6 +19,7 @@ import { useAuthCheck } from '../../hooks/useAuthProtection';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import LoginRequired from '../../components/LoginRequired';
+import { AddressModal } from '../../components/ui';
 import addressService from '../../services/addressService';
 import axiosInstance from '../../lib/axios';
 import orderService from '../../services/orderService';
@@ -64,6 +65,8 @@ const CheckoutScreen = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
 
   // Payment state
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
@@ -299,6 +302,8 @@ const CheckoutScreen = () => {
       } else if (allAddresses.length > 0) {
         setSelectedAddress(allAddresses[0]);
       }
+
+      return allAddresses;
     } catch (error) {
       console.error('Error fetching addresses:', error);
       toast.error('Failed to load addresses');
@@ -582,9 +587,37 @@ const CheckoutScreen = () => {
     toast.success('Coupon removed');
   };
 
-  // Handle add address navigation
+  // Handle add address modal on checkout
   const handleAddAddress = () => {
-    router.push('/add-address?returnTo=checkout');
+    setShowAddressDropdown(false);
+    setShowAddressModal(true);
+  };
+
+  const handleSaveAddress = async (addressData) => {
+    try {
+      setIsSavingAddress(true);
+      const response = await addressService.createAddress(addressData);
+      if (response.success) {
+        toast.success('Address added successfully');
+      } else {
+        toast.success('Address added successfully');
+      }
+      const updatedAddresses = await fetchAddresses();
+      if (Array.isArray(updatedAddresses) && updatedAddresses.length > 0) {
+        const savedAddress = updatedAddresses.find((addr) =>
+          addr.addressLine1 === addressData.addressLine1 &&
+          addr.city === addressData.city &&
+          addr.pincode === (addressData.zipCode || addressData.pincode)
+        );
+        setSelectedAddress(savedAddress || updatedAddresses[0]);
+      }
+      setShowAddressModal(false);
+    } catch (error) {
+      console.error('Error saving address:', error);
+      toast.error('Failed to save address');
+    } finally {
+      setIsSavingAddress(false);
+    }
   };
 
   // Calculate delivery fee
@@ -1301,6 +1334,14 @@ const CheckoutScreen = () => {
           )}
         </TouchableOpacity>
       </View>
+
+      <AddressModal
+        visible={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={handleSaveAddress}
+        editingAddress={null}
+        isLoading={isSavingAddress}
+      />
 
       {/* Address Dropdown Modal */}
       <Modal
