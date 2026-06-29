@@ -5,7 +5,7 @@ import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
 import { WishlistProvider } from '../context/WishlistContext';
 import { LocationProvider } from '../context/LocationContext';
-import { NotificationProvider } from '../context/NotificationContext';
+import { NotificationProvider } from '../context/NotificationContext.js';
 // TODO: Enable real-time socket provider in future
 // import { SocketProvider } from '../context/SocketContext';
 import { StatusBar } from 'expo-status-bar';
