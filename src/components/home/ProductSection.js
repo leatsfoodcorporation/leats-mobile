@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import ProductCard from '../products/ProductCard';
 import { getHomepageProducts } from '../../services/frontendService';
@@ -17,6 +17,14 @@ const ProductSection = memo(({
   const [activeCategory, setActiveCategory] = useState('');
   const [products, setProducts] = useState(initialProducts);
   const [loading, setLoading] = useState(false);
+
+  const { width } = useWindowDimensions();
+
+  const CARD_MIN_WIDTH = 180; // Minimum width for a card
+  const HORIZONTAL_PADDING = 30; // px-4 on both sides
+  const GAP = 12;
+  const columns = Math.max(2, Math.floor((width - HORIZONTAL_PADDING) / (CARD_MIN_WIDTH + GAP)));
+  const cardWidth = (width - HORIZONTAL_PADDING - GAP * (columns - 1)) / columns;
 
   // Fetch products when category changes
   const fetchProducts = useCallback(async (category = '') => {

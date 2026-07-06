@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -58,8 +58,24 @@ const CategoryScroll = memo(({ categories = [], loading = false }) => {
   }
 
   // Split categories into two rows - show all categories
-  const topRow = categories.slice(0, 7); // First 7 categories in top row
-  const bottomRow = categories.slice(7); // All remaining in bottom row
+  //const topRow = categories.slice(0, 3); // First 3 categories in top row
+  //const bottomRow = categories.slice(3, 6); // Next 3 categories in bottom row
+
+  const ITEM_WIDTH = 96; // 80 + 16 (mr-4)
+  const HORIZONTAL_PADDING = 24; // 12 + 12
+
+  const screenWidth = Dimensions.get("window").width;
+  const itemsPerRow = Math.max(
+    2,
+    Math.floor((screenWidth - HORIZONTAL_PADDING) / ITEM_WIDTH)
+  );
+  const categorySlots = itemsPerRow;
+
+  const topRow = categories.slice(0, categorySlots);
+  const bottomRow = categories.slice(
+    categorySlots,
+    categorySlots * 2
+  );
 
   const CategoryItem = ({ category }) => (
     <TouchableOpacity
@@ -135,15 +151,16 @@ const CategoryScroll = memo(({ categories = [], loading = false }) => {
             {topRow.map((category) => (
               <CategoryItem key={category.id} category={category} />
             ))}
+             <MoreButton />
           </View>
 
           {/* Bottom Row */}
-          <View className="flex-row">
+          {/* <View className="flex-row">
             {bottomRow.map((category) => (
               <CategoryItem key={category.id} category={category} />
             ))}
             <MoreButton />
-          </View>
+          </View> */}
         </View>
       </ScrollView>
     </View>
