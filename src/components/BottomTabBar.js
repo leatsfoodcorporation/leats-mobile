@@ -372,7 +372,7 @@ const BottomTabBar = memo(() => {
       cleanRoute: '/profile',
       icon: 'person',
       iconOutline: 'person-outline',
-      label: 'Me',
+      label: 'Profile',
     },
   ];
 

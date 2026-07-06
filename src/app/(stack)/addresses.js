@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  StyleSheet
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -29,6 +30,15 @@ export default function AddressesScreen() {
   useEffect(() => {
     fetchAddresses();
   }, []);
+
+  const handleBackPress = () => {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/(tabs)");
+  }
+};
+
 
   const fetchAddresses = async () => {
     try {
@@ -200,21 +210,31 @@ export default function AddressesScreen() {
   return (
     <>
       <StatusBar style="light" backgroundColor={PRIMARY_COLOR} translucent={true} />
-      <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: PRIMARY_COLOR }}>
-        <View className="flex-1 bg-gray-50">
-          {/* Header */}
-        <View className="bg-white px-4 py-3 flex-row items-center border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-xl font-semibold flex-1">My Addresses</Text>
-        <TouchableOpacity
-          onPress={handleAddNewAddress}
-          className="bg-red-500 px-4 py-2 rounded-lg"
-        >
-          <Text className="text-white font-medium">Add New</Text>
-        </TouchableOpacity>
-      </View>
+         <SafeAreaView 
+              style={[styles.container, { backgroundColor: "#e63946" }]}
+                edges={["top", "left", "right"]}>
+                <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#e63946", }}>
+                    <TouchableOpacity
+                      onPress={() => handleBackPress()}
+                      style={{ width: 40, height: 40, justifyContent: "center", alignItems: "center",}}>
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <View
+                      style={{
+                        flex: 1,
+                        marginLeft: 8,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }} >
+                      <Text style={{ color: "#fff", fontSize: 22, fontWeight: "bold" }}> My Addresses</Text> 
+                      <TouchableOpacity
+                        onPress={handleAddNewAddress}  className="px-4 py-2 rounded-lg" style={{ backgroundColor: "#fff" }}>
+                    <Text className="font-medium" style={{ color: "#000", }}>Add New</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
 
       <ScrollView className="flex-1">
         {addresses.length === 0 ? (
@@ -348,3 +368,34 @@ export default function AddressesScreen() {
     </>
   );
 }
+
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+});

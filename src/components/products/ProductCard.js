@@ -8,6 +8,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { getFullImageUrl } from '../../lib/image-utils';
 import { useCurrency } from '../../hooks/useCurrency';
 import { formatSmartUOMDisplay } from '../../lib/uom-utils';
+import PlaceholderImage from "../../../assets/product-placeholder.png";
 
 const PRIMARY_COLOR = '#e63946';
 
@@ -154,19 +155,16 @@ const ProductCard = memo(({ product, compact = false }) => {
         )}
 
         {/* Product Image */}
-        <View className={compact ? "h-32" : "h-48"}>
-          {productImage ? (
-            <Image
-              source={{ uri: productImage }}
-              style={{ width: '100%', height: '100%', padding: 16 }}
-              resizeMode="contain"
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center bg-gray-50">
-              <Ionicons name="image-outline" size={40} color="#D1D5DB" />
-              <Text className="text-xs text-gray-400 mt-1">No Image</Text>
-            </View>
-          )}
+        <View className={`${compact ? "h-32" : "h-48"} items-center justify-center pt-4`}   
+              style={{ paddingHorizontal: 16, paddingTop: 16,}}>
+          <Image
+            source={productImage ? { uri: productImage } : PlaceholderImage}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+            contentFit="contain"
+          />
         </View>
 
         {/* Product Info */}

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  StyleSheet
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -65,17 +66,52 @@ export default function UserProfileScreen() {
     return parts.length > 0 ? parts.join(', ') : null;
   };
 
+    const handleBackPress = () => {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/(tabs)");
+  }
+};
+
+
   return (
     <>
-      <StatusBar style="light" backgroundColor={PRIMARY_COLOR} translucent={true} />
-      <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: PRIMARY_COLOR }}>
-        <View style={[{ flex: 1, backgroundColor: '#f9fafb' }, { paddingBottom: insets.bottom }]}>
-          <Stack.Screen
+        <StatusBar style="light" backgroundColor="#e63946" translucent />
+            <SafeAreaView
+              style={[styles.container, { backgroundColor: "#e63946" }]}
+              edges={["top", "left", "right"]}>
+              <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    backgroundColor: "#e63946",
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => handleBackPress()}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}>
+                    <Ionicons name="arrow-back" size={24} color="#fff" />
+                  </TouchableOpacity>
+                  <View style={{ marginLeft: 8 }}>
+                    <Text style={{ color: "#fff", fontSize: 22, fontWeight: "bold" }}>
+                      My Profile
+                    </Text>
+                  </View>
+                </View>
+          {/* <Stack.Screen
             options={{
               title: 'My Profile',
               headerShown: true,
             }}
-          />
+          /> */}
 
       <ScrollView className="flex-1">
         {/* Profile Header */}
@@ -212,3 +248,33 @@ export default function UserProfileScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+});
