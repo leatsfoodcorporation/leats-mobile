@@ -8,6 +8,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { getFullImageUrl } from '../../lib/image-utils';
 import { useCurrency } from '../../hooks/useCurrency';
 import { formatSmartUOMDisplay } from '../../lib/uom-utils';
+import PlaceholderImage from "../../../assets/product-placeholder.png";
 
 const PRIMARY_COLOR = '#e63946';
 
@@ -36,7 +37,7 @@ const ProductCard = memo(({ product, compact = false }) => {
   // Get actual variant index from full product.variants array
   const actualVariantIndex = product.variants.findIndex(
     v => v.inventoryProductId === currentVariant?.inventoryProductId &&
-         v.variantUomValue === currentVariant?.variantUomValue
+      v.variantUomValue === currentVariant?.variantUomValue
   );
 
   // Get cutting styles
@@ -45,40 +46,40 @@ const ProductCard = memo(({ product, compact = false }) => {
 
   // Get quantity
   const quantity = getItemQuantity(
-    product.id, 
-    inventoryProductId, 
-    actualVariantIndex, 
+    product.id,
+    inventoryProductId,
+    actualVariantIndex,
     selectedCuttingStyle || undefined
   );
 
   // Get product image
   const productImage = useMemo(() => {
     let imageUrl = null;
-    
+
     if (currentVariant?.variantImages?.[0] && currentVariant.variantImages[0].trim() !== '') {
       imageUrl = currentVariant.variantImages[0];
     } else if (product.type === 'combo' && product.thumbnail && product.thumbnail.trim() !== '') {
       imageUrl = product.thumbnail;
     }
-    
+
     return imageUrl ? getFullImageUrl(imageUrl) : null;
   }, [currentVariant, product]);
 
   // Price calculations
   const price = currentVariant?.variantSellingPrice || product.defaultSellingPrice;
   const mrp = currentVariant?.variantMRP || product.defaultMRP;
-  
+
   // Discount calculations
   const discountType = currentVariant?.discountType || product.discountType;
   const discountValue = currentVariant?.variantDiscount || product.defaultDiscountValue;
   const discountPercentage = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
-  
+
   const isFlatDiscount = discountType?.toLowerCase() === 'flat';
   const discountText = isFlatDiscount && discountValue > 0
     ? `${currencySymbol}${discountValue} OFF`
     : discountPercentage > 0
-    ? `${discountPercentage}% OFF`
-    : '';
+      ? `${discountPercentage}% OFF`
+      : '';
 
   // Stock info
   const availableStock = currentVariant?.variantStockQuantity || 0;
@@ -90,7 +91,7 @@ const ProductCard = memo(({ product, compact = false }) => {
   const handlePress = () => {
     router.push({
       pathname: '/(stack)/product-detail',
-      params: { 
+      params: {
         productId: product.id,
         variantIndex: actualVariantIndex,
       }
@@ -139,10 +140,10 @@ const ProductCard = memo(({ product, compact = false }) => {
           onPress={handleWishlistToggle}
           className="absolute top-2 left-2 z-20 w-8 h-8 bg-white rounded-full items-center justify-center shadow-md"
         >
-          <Ionicons 
-            name={isWishlisted ? "heart" : "heart-outline"} 
-            size={18} 
-            color={isWishlisted ? PRIMARY_COLOR : "#6B7280"} 
+          <Ionicons
+            name={isWishlisted ? "heart" : "heart-outline"}
+            size={18}
+            color={isWishlisted ? PRIMARY_COLOR : "#6B7280"}
           />
         </TouchableOpacity>
 
@@ -154,128 +155,136 @@ const ProductCard = memo(({ product, compact = false }) => {
         )}
 
         {/* Product Image */}
-        <View className="aspect-square w-full">
-          {productImage ? (
-            <Image
-              source={{ uri: productImage }}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center bg-gray-50">
-              <Ionicons name="image-outline" size={40} color="#D1D5DB" />
-              <Text className="text-xs text-gray-400 mt-1">No Image</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Product Info */}
-        <View className="p-3 flex-1">
-          {/* Brand */}
-          {!!product.brand && (
-            <Text className="text-xs text-gray-500 mb-1" numberOfLines={1}>
-              {product.brand}
-            </Text>
-          )}
-
-          {/* Product Name */}
-          <Text 
-            className="text-sm font-medium text-gray-800 mb-2"
-            numberOfLines={2}
-            style={{ minHeight: 36 }}
-          >
-            {currentVariant?.displayName || product.shortDescription || currentVariant?.variantName}
-          </Text>
-
-          {/* Variant Selector - Only show if dropdownName exists */}
-          {!!currentVariant?.dropdownName && (
-            <TouchableOpacity
-              onPress={() => activeVariants.length > 1 && setShowVariants(true)}
-              disabled={activeVariants.length === 1}
-              className={`flex-row items-center justify-between rounded px-3 py-2 mb-2 ${
-                activeVariants.length === 1 ? 'bg-gray-100' : 'bg-white border border-gray-300'
-              }`}
-            >
-              <Text className="text-sm text-gray-700 flex-1" numberOfLines={1}>
-                {currentVariant.dropdownName}
-              </Text>
-              {Boolean(activeVariants.length > 1) && (
-                <Ionicons name="chevron-down" size={16} color="#6B7280" />
-              )}
-            </TouchableOpacity>
-          )}
-
-          {/* Price */}
-          <View className="flex-row items-center gap-2 mb-2">
-            <Text className="text-lg font-bold text-gray-900">
-              {currencySymbol}{price.toFixed(0)}
-            </Text>
-            {Boolean(discountPercentage > 0) && (
-              <Text className="text-sm text-gray-400 line-through">
-                {currencySymbol}{mrp.toFixed(0)}
-              </Text>
+        <View className={`${compact ? "h-32" : "h-48"} items-center justify-center pt-4`}
+          style={{ paddingHorizontal: 16, paddingTop: 16, }}>
+          <Image
+            source={productImage ? { uri: productImage } : PlaceholderImage}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+            contentFit="contain"
+          />
+          <View className="aspect-square w-full">
+            {productImage ? (
+              <Image
+                source={{ uri: productImage }}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="flex-1 items-center justify-center bg-gray-50">
+                <Ionicons name="image-outline" size={40} color="#D1D5DB" />
+                <Text className="text-xs text-gray-400 mt-1">No Image</Text>
+              </View>
             )}
           </View>
 
-          {/* Cutting Style Button */}
-          {Boolean(hasCuttingStyles) && (
-            <TouchableOpacity
-              onPress={() => setShowCuttingStyles(true)}
-              className="bg-green-100 px-2.5 py-1.5 rounded mb-2 self-start"
-            >
-              <View className="flex-row items-center gap-1">
-                <Text className="text-xs text-green-700 font-medium">
-                  {selectedCuttingStyle || 'Cutting Style'}
-                </Text>
-                <Ionicons name="chevron-down" size={12} color="#15803d" />
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* Stock Status */}
-          {Boolean(isLowStock && quantity === 0) && (
-            <Text className="text-xs text-orange-600 font-medium mb-2">
-              Only {currentVariant?.variantUom ? formatSmartUOMDisplay(availableStock, currentVariant.variantUom) : availableStock} left
-            </Text>
-          )}
-          {Boolean(quantity >= availableStock && quantity > 0) && (
-            <Text className="text-xs text-orange-600 font-medium mb-2">
-              Max stock reached
-            </Text>
-          )}
-
-          {/* Spacer to push button to bottom */}
-          <View className="flex-1" />
-
-          {/* Add to Cart Button */}
-          {quantity === 0 ? (
-            <TouchableOpacity
-              onPress={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`py-2.5 rounded items-center ${
-                isOutOfStock ? 'bg-gray-300' : 'bg-[#e63946]'
-              }`}
-            >
-              <Text className={`font-semibold text-sm ${isOutOfStock ? 'text-gray-500' : 'text-white'}`}>
-                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          {/* Product Info */}
+          <View className="p-3 flex-1">
+            {/* Brand */}
+            {!!product.brand && (
+              <Text className="text-xs text-gray-500 mb-1" numberOfLines={1}>
+                {product.brand}
               </Text>
-            </TouchableOpacity>
-          ) : (
-            <View className="flex-row items-center justify-between border-2 border-[#e63946] rounded overflow-hidden">
-              <TouchableOpacity onPress={handleDecrement} className="px-3 py-2">
-                <Ionicons name="remove" size={16} color={PRIMARY_COLOR} />
-              </TouchableOpacity>
-              <Text className="font-semibold text-[#e63946] text-sm">{quantity}</Text>
+            )}
+
+            {/* Product Name */}
+            <Text
+              className="text-sm font-medium text-gray-800 mb-2"
+              numberOfLines={2}
+              style={{ minHeight: 36 }}
+            >
+              {currentVariant?.displayName || product.shortDescription || currentVariant?.variantName}
+            </Text>
+
+            {/* Variant Selector - Only show if dropdownName exists */}
+            {!!currentVariant?.dropdownName && (
               <TouchableOpacity
-                onPress={handleIncrement}
-                disabled={quantity >= availableStock}
-                className={`px-3 py-2 ${quantity >= availableStock ? 'opacity-50' : ''}`}
+                onPress={() => activeVariants.length > 1 && setShowVariants(true)}
+                disabled={activeVariants.length === 1}
+                className={`flex-row items-center justify-between rounded px-3 py-2 mb-2 ${activeVariants.length === 1 ? 'bg-gray-100' : 'bg-white border border-gray-300'
+                  }`}
               >
-                <Ionicons name="add" size={16} color={PRIMARY_COLOR} />
+                <Text className="text-sm text-gray-700 flex-1" numberOfLines={1}>
+                  {currentVariant.dropdownName}
+                </Text>
+                {Boolean(activeVariants.length > 1) && (
+                  <Ionicons name="chevron-down" size={16} color="#6B7280" />
+                )}
               </TouchableOpacity>
+            )}
+
+            {/* Price */}
+            <View className="flex-row items-center gap-2 mb-2">
+              <Text className="text-lg font-bold text-gray-900">
+                {currencySymbol}{price.toFixed(0)}
+              </Text>
+              {Boolean(discountPercentage > 0) && (
+                <Text className="text-sm text-gray-400 line-through">
+                  {currencySymbol}{mrp.toFixed(0)}
+                </Text>
+              )}
             </View>
-          )}
-        </View>
+
+            {/* Cutting Style Button */}
+            {Boolean(hasCuttingStyles) && (
+              <TouchableOpacity
+                onPress={() => setShowCuttingStyles(true)}
+                className="bg-green-100 px-2.5 py-1.5 rounded mb-2 self-start"
+              >
+                <View className="flex-row items-center gap-1">
+                  <Text className="text-xs text-green-700 font-medium">
+                    {selectedCuttingStyle || 'Cutting Style'}
+                  </Text>
+                  <Ionicons name="chevron-down" size={12} color="#15803d" />
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {/* Stock Status */}
+            {Boolean(isLowStock && quantity === 0) && (
+              <Text className="text-xs text-orange-600 font-medium mb-2">
+                Only {currentVariant?.variantUom ? formatSmartUOMDisplay(availableStock, currentVariant.variantUom) : availableStock} left
+              </Text>
+            )}
+            {Boolean(quantity >= availableStock && quantity > 0) && (
+              <Text className="text-xs text-orange-600 font-medium mb-2">
+                Max stock reached
+              </Text>
+            )}
+
+            {/* Spacer to push button to bottom */}
+            <View className="flex-1" />
+
+            {/* Add to Cart Button */}
+            {quantity === 0 ? (
+              <TouchableOpacity
+                onPress={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`py-2.5 rounded items-center ${isOutOfStock ? 'bg-gray-300' : 'bg-[#e63946]'
+                  }`}
+              >
+                <Text className={`font-semibold text-sm ${isOutOfStock ? 'text-gray-500' : 'text-white'}`}>
+                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View className="flex-row items-center justify-between border-2 border-[#e63946] rounded overflow-hidden">
+                <TouchableOpacity onPress={handleDecrement} className="px-3 py-2">
+                  <Ionicons name="remove" size={16} color={PRIMARY_COLOR} />
+                </TouchableOpacity>
+                <Text className="font-semibold text-[#e63946] text-sm">{quantity}</Text>
+                <TouchableOpacity
+                  onPress={handleIncrement}
+                  disabled={quantity >= availableStock}
+                  className={`px-3 py-2 ${quantity >= availableStock ? 'opacity-50' : ''}`}
+                >
+                  <Ionicons name="add" size={16} color={PRIMARY_COLOR} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
       </TouchableOpacity>
 
       {/* Variant Selection Modal */}
@@ -285,12 +294,12 @@ const ProductCard = memo(({ product, compact = false }) => {
         animationType="slide"
         onRequestClose={() => setShowVariants(false)}
       >
-        <Pressable 
+        <Pressable
           className="flex-1 bg-black/50 justify-end"
           onPress={() => setShowVariants(false)}
         >
-          <Pressable 
-            className="bg-white rounded-t-2xl max-h-[70%]" 
+          <Pressable
+            className="bg-white rounded-t-2xl max-h-[70%]"
             style={{ paddingBottom: insets.bottom || 8 }}
             onPress={(e) => e.stopPropagation()}
           >
@@ -300,7 +309,7 @@ const ProductCard = memo(({ product, compact = false }) => {
                 <Ionicons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
-            
+
             <ScrollView className="p-4">
               {activeVariants.map((variant, index) => {
                 const variantDiscountType = variant.discountType || product.discountType;
@@ -308,13 +317,13 @@ const ProductCard = memo(({ product, compact = false }) => {
                 const variantDiscountPercentage = variant.variantMRP > variant.variantSellingPrice
                   ? Math.round(((variant.variantMRP - variant.variantSellingPrice) / variant.variantMRP) * 100)
                   : 0;
-                
+
                 const isVariantFlatDiscount = variantDiscountType?.toLowerCase() === 'flat';
                 const variantDiscountText = isVariantFlatDiscount && variantDiscountValue > 0
                   ? `${currencySymbol}${variantDiscountValue} OFF`
                   : variantDiscountPercentage > 0
-                  ? `${variantDiscountPercentage}% OFF`
-                  : '';
+                    ? `${variantDiscountPercentage}% OFF`
+                    : '';
 
                 return (
                   <TouchableOpacity
@@ -323,9 +332,8 @@ const ProductCard = memo(({ product, compact = false }) => {
                       setSelectedVariant(index);
                       setShowVariants(false);
                     }}
-                    className={`p-3 mb-2 rounded-lg flex-row items-center justify-between ${
-                      selectedVariant === index ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
-                    }`}
+                    className={`p-3 mb-2 rounded-lg flex-row items-center justify-between ${selectedVariant === index ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
+                      }`}
                   >
                     <View className="flex-1">
                       <Text className="text-sm text-gray-700 font-medium mb-1">
@@ -365,12 +373,12 @@ const ProductCard = memo(({ product, compact = false }) => {
         animationType="slide"
         onRequestClose={() => setShowCuttingStyles(false)}
       >
-        <Pressable 
+        <Pressable
           className="flex-1 bg-black/50 justify-end"
           onPress={() => setShowCuttingStyles(false)}
         >
-          <Pressable 
-            className="bg-white rounded-t-2xl" 
+          <Pressable
+            className="bg-white rounded-t-2xl"
             style={{ paddingBottom: insets.bottom || 8 }}
             onPress={(e) => e.stopPropagation()}
           >
@@ -380,7 +388,7 @@ const ProductCard = memo(({ product, compact = false }) => {
                 <Ionicons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
-            
+
             <ScrollView className="p-4">
               {cuttingStyles.map((style) => (
                 <TouchableOpacity
@@ -389,9 +397,8 @@ const ProductCard = memo(({ product, compact = false }) => {
                     setSelectedCuttingStyle(style.name);
                     setShowCuttingStyles(false);
                   }}
-                  className={`p-3 mb-2 rounded-lg flex-row items-center justify-between ${
-                    selectedCuttingStyle === style.name ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
-                  }`}
+                  className={`p-3 mb-2 rounded-lg flex-row items-center justify-between ${selectedCuttingStyle === style.name ? 'bg-green-50 border border-green-200' : 'bg-gray-50'
+                    }`}
                 >
                   <Text className="text-sm text-gray-700">{style.name}</Text>
                   {Boolean(selectedCuttingStyle === style.name) && (

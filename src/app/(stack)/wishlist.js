@@ -8,7 +8,8 @@ import {
   RefreshControl,
   Alert,
   Dimensions,
-} from 'react-native';
+  StyleSheet
+  }  from 'react-native';
 import { useState, useCallback } from 'react';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -306,35 +307,45 @@ const WishlistScreen = memo(() => {
     );
   }
 
+      const handleBackPress = () => {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.replace("/(tabs)");
+  }
+};
+
   return (
     <>
       <StatusBar style="light" backgroundColor="#e63946" translucent={true} />
-      <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: '#e63946' }}>
-        <View 
-          className="flex-1 bg-gray-50"
-          style={{ 
-            paddingBottom: insets.bottom,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-          }}
-        >
-          {/* Header */}
-          <View className="bg-white border-b border-gray-200">
-            <View className="flex-row items-center justify-between px-4 py-3">
-              <View className="flex-row items-center flex-1">
-                <TouchableOpacity
-                  onPress={() => router.back()}
-                  className="p-2 -ml-2 mr-2"
-                >
-                  <Ionicons name="arrow-back" size={24} color="#374151" />
-                </TouchableOpacity>
-                <View>
-                  <Text className="text-lg font-bold text-gray-800">My Wishlist</Text>
-                  <Text className="text-xs text-gray-500 mt-0.5">
-                    {wishlistCount} {wishlistCount === 1 ? 'item' : 'items'}
-                  </Text>
-                </View>
-              </View>
+      <SafeAreaView 
+        style={[styles.container, { backgroundColor: "#e63946" }]}
+                edges={["top", "left", "right"]}>
+          <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                backgroundColor: "#e63946", }}>
+                        <TouchableOpacity
+                          onPress={() => handleBackPress()}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}>
+                          <Ionicons name="arrow-back" size={24} color="#fff" />
+                        </TouchableOpacity>
+                        <View style={{ marginLeft: 8 }}>
+                          <Text style={{ color: "#fff", fontSize: 22, fontWeight: "bold" }}>
+                            My Wishlist
+                          </Text>
+                           <Text className="text-xs text-gray-500 mt-0.5 "  style={{ color: "#fff"}}>
+                            {wishlistCount} {wishlistCount === 1 ? 'item' : 'items'}
+                          </Text>
               
               {/* Clear All Button */}
               {wishlistCount > 0 && (
@@ -404,3 +415,33 @@ const WishlistScreen = memo(() => {
 WishlistScreen.displayName = 'WishlistScreen';
 
 export default WishlistScreen;
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+});
