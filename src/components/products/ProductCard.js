@@ -1,5 +1,6 @@
 import { useState, useMemo, memo } from 'react';
-import { View, Text, TouchableOpacity, Modal, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -165,23 +166,10 @@ const ProductCard = memo(({ product, compact = false }) => {
             }}
             contentFit="contain"
           />
-          <View className="aspect-square w-full">
-            {productImage ? (
-              <Image
-                source={{ uri: productImage }}
-                style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
-              />
-            ) : (
-              <View className="flex-1 items-center justify-center bg-gray-50">
-                <Ionicons name="image-outline" size={40} color="#D1D5DB" />
-                <Text className="text-xs text-gray-400 mt-1">No Image</Text>
-              </View>
-            )}
-          </View>
+        </View>
 
-          {/* Product Info */}
-          <View className="p-3 flex-1">
+        {/* Product Info */}
+        <View className="p-3 flex-1">
             {/* Brand */}
             {!!product.brand && (
               <Text className="text-xs text-gray-500 mb-1" numberOfLines={1}>
