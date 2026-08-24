@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -176,30 +177,34 @@ const RegisterScreen = () => {
                   <Text className="text-sm text-gray-500 mt-1">Join LEATS for fresh groceries</Text>
                 </View>
 
-                {/* Google Sign Up Button */}
-                <TouchableOpacity
-                  onPress={handleGoogleSignUp}
-                  disabled={loading || googleLoading}
-                  className={`border border-gray-300 rounded-lg py-3 mb-4 flex-row items-center justify-center ${googleLoading ? 'opacity-50' : ''}`}
-                >
-                  {googleLoading ? (
-                    <ActivityIndicator color="#4285F4" size="small" />
-                  ) : (
-                    <>
-                      <Image
-                        source={{ uri: 'https://www.google.com/favicon.ico' }}
-                        style={{ width: 20, height: 20, marginRight: 8 }}
-                      />
-                      <Text className="text-gray-700 font-semibold text-sm">Continue with Google</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                {/* Google Sign Up Button - Hidden on iOS to comply with App Store Guideline 4.8 */}
+                {Platform.OS !== 'ios' && (
+                  <TouchableOpacity
+                    onPress={handleGoogleSignUp}
+                    disabled={loading || googleLoading}
+                    className={`border border-gray-300 rounded-lg py-3 mb-4 flex-row items-center justify-center ${googleLoading ? 'opacity-50' : ''}`}
+                  >
+                    {googleLoading ? (
+                      <ActivityIndicator color="#4285F4" size="small" />
+                    ) : (
+                      <>
+                        <Image
+                          source={{ uri: 'https://www.google.com/favicon.ico' }}
+                          style={{ width: 20, height: 20, marginRight: 8 }}
+                        />
+                        <Text className="text-gray-700 font-semibold text-sm">Continue with Google</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                )}
 
-                <View className="flex-row items-center my-4">
-                  <View className="flex-1 h-px bg-gray-300" />
-                  <Text className="mx-3 text-xs text-gray-500 uppercase">Or continue with</Text>
-                  <View className="flex-1 h-px bg-gray-300" />
-                </View>
+                {Platform.OS !== 'ios' && (
+                  <View className="flex-row items-center my-4">
+                    <View className="flex-1 h-px bg-gray-300" />
+                    <Text className="mx-3 text-xs text-gray-500 uppercase">Or continue with</Text>
+                    <View className="flex-1 h-px bg-gray-300" />
+                  </View>
+                )}
 
                 {/* Registration Form */}
                 <View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -357,14 +357,18 @@ const CheckoutScreen = () => {
     try {
       const response = await axiosInstance.get('/api/payment-gateway/active');
       
-      if (response.data.success) {
+      if (response.data.success && response.data.data && response.data.data.length > 0) {
         const activeGatewayNames = response.data.data.map((g) => g.name);
         setActivePaymentGateways(activeGatewayNames);
         console.log('Active payment gateways:', activeGatewayNames);
+      } else {
+        // Fallback to COD if empty response
+        setActivePaymentGateways(['cod']);
       }
     } catch (error) {
       console.error('Error fetching active payment gateways:', error);
-      setActivePaymentGateways([]);
+      // Fallback to COD on error
+      setActivePaymentGateways(['cod']);
     }
   };
 
@@ -419,6 +423,36 @@ const CheckoutScreen = () => {
     
     return () => clearInterval(interval);
   }, [isAuthenticated, user?.id, selectedDate, scheduleSettings?.windowStatus?.activeWindow]);
+
+  // Re-check COD when cart items load/change (important for Buy Now flow)
+  useEffect(() => {
+    if (isAuthenticated && user?.id && effectiveCartItems.length > 0) {
+      checkCODAvailability();
+    }
+  }, [isAuthenticated, user?.id, effectiveCartItems]);
+
+  // Auto-select first available payment method
+  useEffect(() => {
+    if (paymentMethods.length > 0 && !selectedPaymentMethod) {
+      const firstAvailable = paymentMethods.find(m => {
+        const isCOD = m.id === 'cod';
+        const isDisabled = isCOD && !isCODAvailable;
+        return !isDisabled;
+      });
+      if (firstAvailable) {
+        setSelectedPaymentMethod(firstAvailable.id);
+      } else {
+        setSelectedPaymentMethod(paymentMethods[0].id);
+      }
+    }
+  }, [paymentMethods, isCODAvailable, selectedPaymentMethod]);
+
+  // Auto-select first delivery slot when Tomorrow is selected
+  useEffect(() => {
+    if (selectedDate === 'Tomorrow' && scheduleSettings?.deliverySlots?.length > 0 && !selectedSlot) {
+      setSelectedSlot(scheduleSettings.deliverySlots[0]);
+    }
+  }, [selectedDate, scheduleSettings, selectedSlot]);
 
   // Check COD availability
   const checkCODAvailability = async () => {
@@ -480,13 +514,13 @@ const CheckoutScreen = () => {
 
       // Get unique category IDs from cart items
       const categoryIds = Array.from(
-        new Set(cartItems.map(item => item.categoryId).filter(id => !!id))
+        new Set(effectiveCartItems.map(item => item.categoryId).filter(id => !!id))
       );
 
       const requestData = {
         code: code.toUpperCase(),
         userId: user.id,
-        orderValue: cartTotal,
+        orderValue: effectiveCartTotal,
         categories: categoryIds,
       };
 
@@ -534,13 +568,13 @@ const CheckoutScreen = () => {
 
       // Get unique category IDs from cart items
       const categoryIds = Array.from(
-        new Set(cartItems.map(item => item.categoryId).filter(id => !!id))
+        new Set(effectiveCartItems.map(item => item.categoryId).filter(id => !!id))
       );
 
       const requestData = {
         code: couponCode.toUpperCase(),
         userId: user.id,
-        orderValue: cartTotal,
+        orderValue: effectiveCartTotal,
         categories: categoryIds,
       };
 
@@ -625,19 +659,17 @@ const CheckoutScreen = () => {
             orderNumber: razorpayData.orderNumber,
             paymentId: data.razorpay_payment_id,
             razorpayOrderId: data.razorpay_order_id,
-            paymentId: data.razorpay_payment_id,
-            razorpayOrderId: data.razorpay_order_id,
-            // Scheduling data aligned with frontend
-            paymentId: data.razorpay_payment_id,
-            razorpayOrderId: data.razorpay_order_id,
-            // Scheduling data aligned with frontend
             orderType: scheduleSettings?.windowStatus?.activeWindow || 'LIVE',
             scheduledDate: getFormattedDate(selectedDate),
             scheduledSlot: (selectedDate === 'Today' && scheduleSettings?.windowStatus?.activeWindow === 'LIVE') ? 'LIVE' : selectedSlot,
             isScheduled: selectedDate === 'Tomorrow' || (selectedDate === 'Today' && !!selectedSlot),
+            isBuyNow: isBuyNow,
+            buyNowItem: isBuyNow ? buyNowItem : null,
           });
 
-          clearCart();
+          if (!isBuyNow) {
+            clearCart();
+          }
           setShowRazorpayModal(false);
           setIsVerifyingPayment(false);
           toast.success('Payment successful! Order placed.');
@@ -687,13 +719,14 @@ const CheckoutScreen = () => {
     }
 
     // Validate stock before placing order
-    if (hasStockIssues(cartItems)) {
+    if (hasStockIssues(effectiveCartItems)) {
       toast.error('Some items are out of stock or exceed available quantity');
       return;
     }
 
-    // Mandatory slot for Tomorrow (Pre-Order)
-    if (selectedDate === 'Tomorrow' && !selectedSlot) {
+    // Mandatory slot for Tomorrow (Pre-Order) - only if slots are configured by the admin
+    const hasSlots = scheduleSettings?.deliverySlots && scheduleSettings.deliverySlots.length > 0;
+    if (selectedDate === 'Tomorrow' && hasSlots && !selectedSlot) {
       toast.error('Please select a delivery slot for your pre-order');
       return;
     }
@@ -714,6 +747,8 @@ const CheckoutScreen = () => {
         scheduledDate: getFormattedDate(selectedDate),
         scheduledSlot: (selectedDate === 'Today' && scheduleSettings?.windowStatus?.activeWindow === 'LIVE') ? 'LIVE' : selectedSlot,
         isScheduled: selectedDate === 'Tomorrow' || (selectedDate === 'Today' && !!selectedSlot),
+        isBuyNow: isBuyNow,
+        buyNowItem: isBuyNow ? buyNowItem : null,
       };
 
       const response = await orderService.createOrder(orderData);
@@ -721,7 +756,9 @@ const CheckoutScreen = () => {
       console.log('📦 Order response:', response);
 
       if (selectedPaymentMethod === 'cod') {
-        clearCart();
+        if (!isBuyNow) {
+          clearCart();
+        }
         toast.success('Order placed successfully!');
         router.replace({
           pathname: '/order-success',
@@ -769,20 +806,22 @@ const CheckoutScreen = () => {
     }
   };
 
-  const paymentMethods = [
-    { id: 'cod', name: 'Cash on Delivery', description: 'Pay when you receive', icon: 'cash-outline' },
-    { id: 'online', name: 'Pay Now', description: 'Secure online payment', icon: 'card-outline' },
-  ].filter(method => {
-    // Filter based on active payment gateways from backend
-    if (method.id === 'cod') {
-      return activePaymentGateways.includes('cod');
-    }
-    if (method.id === 'online') {
-      // Show online payment if either Razorpay or Stripe is active
-      return activePaymentGateways.includes('razorpay') || activePaymentGateways.includes('stripe');
-    }
-    return false;
-  });
+  const paymentMethods = useMemo(() => {
+    return [
+      { id: 'cod', name: 'Cash on Delivery', description: 'Pay when you receive', icon: 'cash-outline' },
+      { id: 'online', name: 'Pay Now', description: 'Secure online payment', icon: 'card-outline' },
+    ].filter(method => {
+      // Filter based on active payment gateways from backend
+      if (method.id === 'cod') {
+        return activePaymentGateways.includes('cod');
+      }
+      if (method.id === 'online') {
+        // Show online payment if either Razorpay or Stripe is active
+        return activePaymentGateways.includes('razorpay') || activePaymentGateways.includes('stripe');
+      }
+      return false;
+    });
+  }, [activePaymentGateways]);
 
   // Loading state
   if (authLoading) {

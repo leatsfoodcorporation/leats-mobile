@@ -154,12 +154,12 @@ const ProductCard = memo(({ product, compact = false }) => {
         )}
 
         {/* Product Image */}
-        <View className={compact ? "h-32" : "h-48"}>
+        <View className="aspect-square w-full">
           {productImage ? (
             <Image
               source={{ uri: productImage }}
-              style={{ width: '100%', height: '100%', padding: 16 }}
-              resizeMode="contain"
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
             />
           ) : (
             <View className="flex-1 items-center justify-center bg-gray-50">

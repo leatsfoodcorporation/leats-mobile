@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -18,7 +19,6 @@ import authService from '../../services/authService';
 import toast from '../../utils/toast';
 import { useRouter } from 'expo-router';
 import Logo from '../../components/Logo';
-import { PhoneInput } from '../../components/ui';
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -34,9 +34,13 @@ const LoginScreen = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isPhoneInput, setIsPhoneInput] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+
+  // Auto-detect phone number input (starts with digit or +)
+  const isPhone = emailOrPhone.trim().length > 0 && /^[0-9+]/.test(emailOrPhone.trim());
+  const cleanDigits = emailOrPhone.replace(/\D/g, '');
+  const isValidPhone = isPhone && cleanDigits.length === 10;
 
   const handleLogin = async () => {
     if (!emailOrPhone || !password) {
@@ -63,10 +67,13 @@ const LoginScreen = () => {
       let fcmToken = null;
       try {
         const messaging = (await import('@react-native-firebase/messaging')).default;
+        if (Platform.OS === 'ios') {
+          await messaging().registerDeviceForRemoteMessages();
+        }
         fcmToken = await messaging().getToken();
         console.log('📱 FCM Token obtained:', fcmToken ? fcmToken.substring(0, 20) + '...' : 'None');
       } catch (fcmError) {
-        console.error('⚠️ Failed to get FCM token:', fcmError);
+        console.warn('⚠️ Failed to get FCM token:', fcmError);
       }
 
       const response = await authService.login({
@@ -132,10 +139,13 @@ const LoginScreen = () => {
       let fcmToken = null;
       try {
         const messaging = (await import('@react-native-firebase/messaging')).default;
+        if (Platform.OS === 'ios') {
+          await messaging().registerDeviceForRemoteMessages();
+        }
         fcmToken = await messaging().getToken();
         console.log('📱 FCM Token obtained:', fcmToken ? fcmToken.substring(0, 20) + '...' : 'None');
       } catch (fcmError) {
-        console.error('⚠️ Failed to get FCM token:', fcmError);
+        console.warn('⚠️ Failed to get FCM token:', fcmError);
       }
 
       console.log('🔄 Sending to backend (mobile route - no auto-register)...');
@@ -236,65 +246,71 @@ const LoginScreen = () => {
                   <Text className="text-sm text-gray-500 mt-1">Sign in to continue</Text>
                 </View>
 
-                {/* Google Sign In Button */}
-                <TouchableOpacity
-                  onPress={handleGoogleLogin}
-                  disabled={loading || googleLoading}
-                  className={`border border-gray-300 rounded-lg py-3 mb-4 flex-row items-center justify-center ${googleLoading ? 'opacity-50' : ''}`}
-                >
-                  {googleLoading ? (
-                    <ActivityIndicator color="#4285F4" size="small" />
-                  ) : (
-                    <>
-                      <Image
-                        source={{ uri: 'https://www.google.com/favicon.ico' }}
-                        style={{ width: 20, height: 20, marginRight: 8 }}
-                      />
-                      <Text className="text-gray-700 font-semibold text-sm">Continue with Google</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                {/* Google Sign In Button - Hidden on iOS to comply with App Store Guideline 4.8 */}
+                {Platform.OS !== 'ios' && (
+                  <TouchableOpacity
+                    onPress={handleGoogleLogin}
+                    disabled={loading || googleLoading}
+                    className={`border border-gray-300 rounded-lg py-3 mb-4 flex-row items-center justify-center ${googleLoading ? 'opacity-50' : ''}`}
+                  >
+                    {googleLoading ? (
+                      <ActivityIndicator color="#4285F4" size="small" />
+                    ) : (
+                      <>
+                        <Image
+                          source={{ uri: 'https://www.google.com/favicon.ico' }}
+                          style={{ width: 20, height: 20, marginRight: 8 }}
+                        />
+                        <Text className="text-gray-700 font-semibold text-sm">Continue with Google</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                )}
 
-                <View className="flex-row items-center my-4">
-                  <View className="flex-1 h-px bg-gray-300" />
-                  <Text className="mx-3 text-xs text-gray-500 uppercase">Or continue with</Text>
-                  <View className="flex-1 h-px bg-gray-300" />
-                </View>
+                {Platform.OS !== 'ios' && (
+                  <View className="flex-row items-center my-4">
+                    <View className="flex-1 h-px bg-gray-300" />
+                    <Text className="mx-3 text-xs text-gray-500 uppercase">Or continue with</Text>
+                    <View className="flex-1 h-px bg-gray-300" />
+                  </View>
+                )}
 
                 {/* Email/Phone/Password Form */}
                 <View>
                   <View style={{ marginBottom: 16 }}>
-                    <Text className="text-sm font-medium text-gray-700 mb-1">Email or Phone</Text>
-                    {isPhoneInput ? (
-                      <PhoneInput
-                        value={emailOrPhone}
-                        onChange={setEmailOrPhone}
-                        placeholder="Enter phone number"
-                        disabled={loading || googleLoading}
-                      />
-                    ) : (
+                    <Text className="text-sm font-medium text-gray-700 mb-1">
+                      {isPhone ? 'Mobile Number' : 'Email or Mobile Number'}
+                    </Text>
+                    <View className={`flex-row items-center border rounded-lg bg-white overflow-hidden ${isPhone ? (isValidPhone ? 'border-emerald-500' : cleanDigits.length > 0 ? 'border-amber-500' : 'border-gray-300') : 'border-gray-300'}`}>
+                      {isPhone && (
+                        <View className="flex-row items-center px-3 py-3 border-r border-gray-200 bg-gray-50 gap-1">
+                          <Text className="text-base">🇮🇳</Text>
+                          <Text className="text-sm font-semibold text-gray-700">+91</Text>
+                        </View>
+                      )}
                       <TextInput
-                        className="border border-gray-300 rounded-lg px-4 py-3 text-sm"
-                        placeholder="Enter email or phone"
+                        className="flex-1 px-4 py-3 text-sm text-gray-900"
+                        placeholder={isPhone ? "Enter 10-digit mobile number" : "Enter email or mobile number"}
                         value={emailOrPhone}
-                        onChangeText={setEmailOrPhone}
-                        keyboardType="email-address"
+                        onChangeText={(text) => {
+                          if (isPhone) {
+                            const digits = text.replace(/\D/g, '').slice(0, 10);
+                            setEmailOrPhone(digits);
+                          } else {
+                            setEmailOrPhone(text);
+                          }
+                        }}
+                        keyboardType={isPhone ? "number-pad" : "email-address"}
                         autoCapitalize="none"
+                        maxLength={isPhone ? 10 : undefined}
                         editable={!loading && !googleLoading}
                       />
-                    )}
-                    <TouchableOpacity
-                      onPress={() => {
-                        setIsPhoneInput(!isPhoneInput);
-                        setEmailOrPhone('');
-                      }}
-                      className="mt-2 self-end"
-                      disabled={loading || googleLoading}
-                    >
-                      <Text className="text-xs text-gray-500 font-medium underline">
-                        {isPhoneInput ? 'Use email instead' : 'Use phone number instead'}
+                    </View>
+                    {isPhone && (
+                      <Text className={`text-xs mt-1 ${isValidPhone ? 'text-emerald-600' : 'text-amber-500'}`}>
+                        {isValidPhone ? '✓ Valid phone number' : `Enter ${10 - cleanDigits.length} more digit${10 - cleanDigits.length !== 1 ? 's' : ''}`}
                       </Text>
-                    </TouchableOpacity>
+                    )}
                   </View>
 
                   <View style={{ marginBottom: 16 }}>

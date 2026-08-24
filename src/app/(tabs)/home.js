@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTabRefresh } from '../../context/TabRefreshContext';
 import Header from '../../components/Header';
-import { BannerCarousel, CategoryScroll, ProductSection } from '../../components/home';
+import { BannerCarousel, CategoryScroll, ProductSection, ComingSoonSection } from '../../components/home';
 import { useLocation } from '../../context/LocationContext';
 import { 
   getBanners, 
@@ -261,6 +261,9 @@ const HomeScreen = () => {
 
         {/* Shop by Category (DealsSection equivalent) */}
         <CategoryScroll categories={categories} />
+
+        {/* Coming Soon Promo Cards */}
+        <ComingSoonSection />
 
         {/* sortOrder 2: Simple badge section */}
         {badge2 && badgeProducts[badge2.name]?.length > 0 && (

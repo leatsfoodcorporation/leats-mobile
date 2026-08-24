@@ -66,13 +66,33 @@ const OrderCountdownBanner = () => {
 
       const activeMessages = [];
 
+      const isTimeWithinWindow = (current, start, end) => {
+        if (start <= end) {
+          return current >= start && current <= end;
+        } else {
+          return current >= start || current <= end;
+        }
+      };
+
+      const getRemainingSeconds = (currSec, start, end) => {
+        const endSec = end * 60 + 59;
+        if (start <= end) {
+          return endSec - currSec;
+        } else {
+          if (currSec >= start * 60) {
+            return (endSec + 86400) - currSec;
+          } else {
+            return endSec - currSec;
+          }
+        }
+      };
+
       // 1. Process LIVE window status
       if (schedule.liveOrderEnabled) {
-        if (currentMinutes >= liveStart && currentMinutes <= liveEnd) {
-          const endSec = liveEnd * 60 + 59;
-          const remaining = endSec - currentSeconds;
+        if (isTimeWithinWindow(currentMinutes, liveStart, liveEnd)) {
+          const remaining = getRemainingSeconds(currentSeconds, liveStart, liveEnd);
           activeMessages.push(`🔴 ${schedule.liveOrderLabel} closes in ${toHHMMSS(Math.max(0, remaining))}`);
-        } else if (currentMinutes < liveStart) {
+        } else if (currentMinutes < liveStart && (liveStart <= liveEnd || currentMinutes > liveEnd)) {
           const ONE_HOUR = 60;
           if (liveStart - currentMinutes <= ONE_HOUR) {
             const startSec = liveStart * 60;
@@ -85,11 +105,10 @@ const OrderCountdownBanner = () => {
 
       // 2. Process PRE_ORDER window status
       if (schedule.preOrderEnabled) {
-        if (currentMinutes >= preStart && currentMinutes <= preEnd) {
-          const endSec = preEnd * 60 + 59;
-          const remaining = endSec - currentSeconds;
+        if (isTimeWithinWindow(currentMinutes, preStart, preEnd)) {
+          const remaining = getRemainingSeconds(currentSeconds, preStart, preEnd);
           activeMessages.push(`📦 ${schedule.preOrderLabel} closes in ${toHHMMSS(Math.max(0, remaining))}`);
-        } else if (currentMinutes < preStart) {
+        } else if (currentMinutes < preStart && (preStart <= preEnd || currentMinutes > preEnd)) {
           const ONE_HOUR = 60;
           if (preStart - currentMinutes <= ONE_HOUR) {
             const startSec = preStart * 60;

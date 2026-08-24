@@ -121,7 +121,7 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
   // Fetch promotional offers and web settings on mount and auto-detect postal code once
   useEffect(() => {
     detectAndSaveLocation();
-    // fetchPromotionalOffers();
+    fetchPromotionalOffers();
     fetchWebSettings();
     fetchCategories();
   }, []);
@@ -268,7 +268,7 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
         style={{ backgroundColor: PRIMARY_COLOR }}
       >
         {/* Promotional Banner - Smooth Animated */}
-        {promotionalOffers.length > 0 ? (
+        {promotionalOffers.length > 0 && (
           <Animated.View
             style={{
               backgroundColor: PRIMARY_COLOR,
@@ -288,20 +288,9 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
                 className="text-white text-center text-xs font-medium"
                 numberOfLines={1}
               >
-                🎊 {formatOfferText(promotionalOffers[currentOfferIndex])}
+                {formatOfferText(promotionalOffers[currentOfferIndex])}
               </Text>
             </View>
-          </Animated.View>
-        ) : (
-          <Animated.View
-            style={{
-              backgroundColor: PRIMARY_COLOR,
-              opacity: promoBarOpacity,
-              height: promoBarHeight,
-              overflow: 'hidden',
-            }}
-          >
-            <OrderCountdownBanner />
           </Animated.View>
         )}
 
@@ -397,32 +386,10 @@ const Header = memo(({ navigation, scrollY, hideCategories = false }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Category Scroll Bar */}
-          {!hideCategories && categories.length > 0 && (
-            <View className="bg-[#e63946]">
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-              >
-                {categories.map((categoryName, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      router.push({
-                        pathname: '/(tabs)/products',
-                        params: { category: categoryName }
-                      });
-                    }}
-                    className="mr-6"
-                    activeOpacity={0.7}
-                  >
-                    <Text className="text-sm font-medium text-white">
-                      {categoryName}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+          {/* Order Status Banner */}
+          {!hideCategories && (
+            <View className="bg-[#e63946] border-t border-white/10">
+              <OrderCountdownBanner />
             </View>
           )}
         </View>

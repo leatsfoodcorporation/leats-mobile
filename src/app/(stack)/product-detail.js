@@ -43,13 +43,34 @@ const ProductDetailScreen = memo(() => {
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedVariantIndex, setSelectedVariantIndex] = useState(
-    parseInt(initialVariantIndex) || 0
-  );
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedCuttingStyle, setSelectedCuttingStyle] = useState('');
   const [frequentlyBought, setFrequentlyBought] = useState([]);
   const imageScrollRef = useRef(null);
+
+  // Set initial selected active variant index once product is loaded
+  useEffect(() => {
+    if (product && activeVariants.length > 0) {
+      const initIdx = parseInt(initialVariantIndex);
+      if (!isNaN(initIdx) && product.variants[initIdx]) {
+        const targetVariant = product.variants[initIdx];
+        const activeIdx = activeVariants.findIndex(
+          v => v.inventoryProductId === targetVariant.inventoryProductId &&
+               v.variantUomValue === targetVariant.variantUomValue
+        );
+        if (activeIdx >= 0) {
+          setSelectedVariantIndex(activeIdx);
+        } else {
+          setSelectedVariantIndex(0);
+        }
+      } else {
+        // Find default variant or default to 0
+        const defaultIdx = activeVariants.findIndex(v => v.isDefault);
+        setSelectedVariantIndex(defaultIdx >= 0 ? defaultIdx : 0);
+      }
+    }
+  }, [product, initialVariantIndex, activeVariants]);
 
   // Fetch product details with caching
   const fetchProduct = useCallback(async (forceRefresh = false) => {
@@ -134,6 +155,16 @@ const ProductDetailScreen = memo(() => {
   // Current variant
   const currentVariant = activeVariants[selectedVariantIndex] || activeVariants[0];
 
+  // Get actual variant index in the full product.variants array
+  const actualVariantIndex = useMemo(() => {
+    if (!product || !currentVariant) return 0;
+    const idx = product.variants.findIndex(
+      v => v.inventoryProductId === currentVariant.inventoryProductId &&
+           v.variantUomValue === currentVariant.variantUomValue
+    );
+    return idx >= 0 ? idx : 0;
+  }, [product, currentVariant]);
+
   // Get images for current variant
   const images = useMemo(() => {
     let imageUrls = [];
@@ -180,7 +211,7 @@ const ProductDetailScreen = memo(() => {
     ? product.id 
     : (currentVariant?.inventoryProductId || '');
   const cartQuantity = product 
-    ? getItemQuantity(product.id, inventoryProductId, selectedVariantIndex, selectedCuttingStyle)
+    ? getItemQuantity(product.id, inventoryProductId, actualVariantIndex, selectedCuttingStyle)
     : 0;
 
   // Cutting styles
@@ -212,16 +243,16 @@ const ProductDetailScreen = memo(() => {
 
     // If item is not in cart yet, add it first
     if (cartQuantity === 0) {
-      addToCart(product, selectedVariantIndex, selectedCuttingStyle || undefined);
+      addToCart(product, actualVariantIndex, selectedCuttingStyle || undefined);
     } else {
-      updateQuantity(product.id, inventoryProductId, selectedVariantIndex, cartQuantity + 1, selectedCuttingStyle || undefined);
+      updateQuantity(product.id, inventoryProductId, actualVariantIndex, cartQuantity + 1, selectedCuttingStyle || undefined);
     }
   };
 
   const decrementQuantity = () => {
     if (!product || cartQuantity === 0) return;
 
-    updateQuantity(product.id, inventoryProductId, selectedVariantIndex, cartQuantity - 1, selectedCuttingStyle || undefined);
+    updateQuantity(product.id, inventoryProductId, actualVariantIndex, cartQuantity - 1, selectedCuttingStyle || undefined);
     
     if (cartQuantity === 1) {
       toast.info('Item removed from cart');
@@ -241,7 +272,7 @@ const ProductDetailScreen = memo(() => {
     }
 
     // Add to cart using context
-    await addToCart(product, selectedVariantIndex, selectedCuttingStyle || undefined);
+    await addToCart(product, actualVariantIndex, selectedCuttingStyle || undefined);
   };
 
   // Handle add to cart for frequently bought together
@@ -264,7 +295,7 @@ const ProductDetailScreen = memo(() => {
       const mainItem = items.find(item => item.inventoryProductId === mainProductInventoryId);
       if (mainItem && product) {
         console.log('📦 Adding main product to cart');
-        await addToCart(product, selectedVariantIndex, selectedCuttingStyle || undefined);
+        await addToCart(product, actualVariantIndex, selectedCuttingStyle || undefined);
       } else {
         console.log('📦 Main product not in items list or product is null');
       }
@@ -376,7 +407,7 @@ const ProductDetailScreen = memo(() => {
     const buyNowItem = {
       productId: product.id,
       inventoryProductId: product.type === 'combo' ? product.id : currentVariant?.inventoryProductId,
-      variantIndex: selectedVariantIndex,
+      variantIndex: actualVariantIndex,
       cuttingStyle: selectedCuttingStyle || undefined,
       quantity: 1,
     };
@@ -498,11 +529,11 @@ const ProductDetailScreen = memo(() => {
                 scrollEventThrottle={16}
               >
                 {images.map((image, index) => (
-                  <View key={index} style={{ width: SCREEN_WIDTH, height: 300 }}>
+                  <View key={index} style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH }}>
                     <Image
                       source={{ uri: image }}
                       style={{ width: '100%', height: '100%' }}
-                      contentFit="contain"
+                      contentFit="cover"
                       transition={200}
                       priority={index === 0 ? 'high' : 'normal'}
                       cachePolicy="memory-disk"
@@ -676,7 +707,7 @@ const ProductDetailScreen = memo(() => {
                 mrp: currentVariant.variantMRP,
                 image: images[0],
                 inventoryProductId: currentVariant.inventoryProductId,
-                variantIndex: selectedVariantIndex,
+                variantIndex: actualVariantIndex,
               }}
               addons={frequentlyBought}
               onAddToCart={handleAddMultipleToCart}

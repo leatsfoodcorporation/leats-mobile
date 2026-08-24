@@ -82,9 +82,9 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food.",
-          "locationAlwaysAndWhenInUsePermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food.",
-          "locationAlwaysPermission": "LEATS needs your location to show nearby Warehouses, calculate delivery fees, and set an accurate drop-off address for your food."
+          "locationWhenInUsePermission": "LEATS uses your location to show nearby restaurants and stores, calculate accurate delivery fees, and automatically fill in your drop-off address when placing an order. For example, when you open the app, we use your location to display restaurants delivering to your area.",
+          "locationAlwaysAndWhenInUsePermission": "LEATS uses your location to show nearby restaurants and stores, calculate accurate delivery fees, and automatically fill in your drop-off address when placing an order. For example, when you open the app, we use your location to display restaurants delivering to your area.",
+          "locationAlwaysPermission": "LEATS uses your location to show nearby restaurants and stores, calculate accurate delivery fees, and automatically fill in your drop-off address when placing an order. For example, when you open the app, we use your location to display restaurants delivering to your area."
         }
       ]
     ],
